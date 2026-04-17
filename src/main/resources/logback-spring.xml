@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Spring Boot默认的日志级别 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+    <!-- 日志输出格式，包含Sleuth生成的Trace ID和Span ID -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+                %X{traceId:-}, %X{spanId:-}
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- 根logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- 可选：为特定包设置不同的日志级别 -->
+    <logger name="com.example.photoscore" level="DEBUG"/>
+</configuration>

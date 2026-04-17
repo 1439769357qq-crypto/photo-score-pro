@@ -1,0 +1,40 @@
+server:
+  port: ${PORT:8080}   # 关键：优先使用 Railway 分配的端口，本地默认8080
+  servlet:
+    context-path: /api
+
+spring:
+  main:
+    allow-circular-references: true
+  application:
+    name: photo-score-pro
+  datasource:
+    url: jdbc:mysql://localhost:3306/photo_score_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20     # 增加最大连接数
+      minimum-idle: 5           # 保持的最小空闲连接数
+      connection-timeout: 30000 # 等待连接的超时时间
+  servlet:
+    multipart:
+      max-file-size: 50MB        # 放宽单文件大小限制
+      max-request-size: 500MB    # 放宽单次请求总大小限制
+      file-size-threshold: 0     # 核心：所有文件直接写入磁盘，不占用内存
+      resolve-lazily: false      # 立即解析，不要延迟
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+
+photoscore:
+  pass-line: 60
+  nima:
+    enabled: true
+    model-path: src/main/resources/models/
+  disruptor:
+    ring-buffer-size: 1024
+    worker-threads: 4
