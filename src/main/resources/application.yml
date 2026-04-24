@@ -31,6 +31,8 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 photoscore:
+  upload:
+    path: D:/photo-uploads   # 照片保存根目录
   pass-line: 60
   nima:
     enabled: true

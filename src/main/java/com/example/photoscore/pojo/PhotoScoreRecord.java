@@ -52,4 +52,6 @@ public class PhotoScoreRecord {
     private LocalDateTime createdTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedTime;
+    @TableField("image_path")
+    private String imagePath;
 }

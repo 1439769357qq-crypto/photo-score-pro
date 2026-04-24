@@ -90,28 +90,34 @@ public class ClarityScorer extends BaseScorer {
     @Override
     protected String generateComment(double rawScore, BufferedImage image) {
         if (rawScore >= 0.85) {
-            return "清晰度极佳，画面从中心到边缘都锐利分明，细节丰富。";
+            return "清晰度极佳，边缘锐利，毛发、纹理等细节清晰可辨，无可挑剔。";
         } else if (rawScore >= 0.70) {
-            return "清晰度良好，主体清晰，但边缘区域有轻微柔化。";
+            return "清晰度良好，主体清晰，但边缘区域有轻微柔化，建议收缩一档光圈拍摄。";
         } else if (rawScore >= 0.55) {
-            return "清晰度尚可，画面整体偏软，可能存在轻微对焦不准或手抖。";
+            return "清晰度尚可，画面整体偏软，可能对焦稍有不实或手持抖动，建议使用三脚架或提高快门速度。";
         } else if (rawScore >= 0.40) {
-            return "清晰度不足，画面模糊，建议检查对焦点或使用三脚架。";
+            return "清晰度不足，画面存在可见模糊，请检查对焦点是否准确落在主体上。";
         } else {
-            return "清晰度严重不足，照片可能已失焦，难以分辨细节。";
+            return "清晰度严重不足，照片已失焦，难以分辨细节，建议重新拍摄。";
         }
     }
 
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
-        if (rawScore < 0.55) {
-            suggestions.add("建议使用三脚架或提高快门速度以减少抖动");
-            suggestions.add("检查对焦点是否准确落在主体上");
-            suggestions.add("避免使用过大的光圈导致景深过浅");
-        }
-        if (rawScore < 0.70) {
-            suggestions.add("可以适当进行后期锐化处理");
+        if (rawScore >= 0.85) {
+            suggestions.add("清晰度非常好，继续保持这种稳定。拍完可以放大检查一下毛发或文字边缘是否锐利。");
+        } else if (rawScore >= 0.70) {
+            suggestions.add("轻微模糊。拍照时双手拿稳手机，或者把手肘撑在桌子上。");
+            suggestions.add("如果拍的是运动的物体，试试用连拍模式。");
+        } else if (rawScore >= 0.55) {
+            suggestions.add("画面有些发虚。建议点一下屏幕让相机重新对焦，等对焦框变绿后再按快门。");
+            suggestions.add("如果是在暗光下拍的，尽量找地方靠一下，或者打开闪光灯。");
+        } else if (rawScore >= 0.40) {
+            suggestions.add("模糊很明显了。重新拍一次，按快门时屏住呼吸，不要手抖。");
+            suggestions.add("检查一下手机镜头是不是有指纹，用软布擦干净。");
+        } else {
+            suggestions.add("照片基本上看不清了。建议在光线充足的地方重拍，或者使用三脚架。");
         }
         return suggestions;
     }

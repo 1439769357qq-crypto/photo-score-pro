@@ -21,4 +21,7 @@ public class CompositeScoreResult {
     private Integer imageWidth;
     private Integer imageHeight;
     private Long elapsedMs;
+    private String imagePath;
+    private Long id;
+    private String sceneCategory;
 }

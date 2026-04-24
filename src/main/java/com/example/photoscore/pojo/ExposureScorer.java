@@ -113,10 +113,18 @@ public class ExposureScorer extends BaseScorer {
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
-        if (rawScore < 0.55) {
-            suggestions.add("建议使用曝光补偿功能，避免高光溢出");
-            suggestions.add("在强光环境下可降低ISO或缩小光圈");
-            suggestions.add("暗光环境建议使用三脚架延长曝光时间");
+        if (rawScore >= 0.85) {
+            suggestions.add("曝光很准确，亮部和暗部细节都保留得很好。继续保持。");
+        } else if (rawScore >= 0.70) {
+            suggestions.add("局部有点过亮或过暗。拍照时点一下屏幕对焦，然后上下滑动旁边的小太阳图标，可以调整亮度。");
+            suggestions.add("如果光线反差太大（比如窗边逆光），可以打开手机的HDR模式试试。");
+        } else if (rawScore >= 0.55) {
+            suggestions.add("曝光有些偏差。整体偏亮或偏暗。多试几次滑动小太阳，找到一个平衡点。");
+            suggestions.add("也可以先按下快门，然后去相册里用编辑功能调一调亮度和阴影。");
+        } else if (rawScore >= 0.40) {
+            suggestions.add("曝光问题比较明显。可能是测光点不对。点一下画面中最亮和最暗的中间区域，重新对焦测光。");
+        } else {
+            suggestions.add("曝光失误了，画面惨白或漆黑。建议在光线均匀的环境下重拍，避免正对着强光源。");
         }
         return suggestions;
     }
