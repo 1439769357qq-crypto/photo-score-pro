@@ -30,7 +30,11 @@ public class DisruptorEventProcessor implements EventHandler<PhotoScoreEvent> {
         PhotoScoreResponse response;
         try {
             // 调用同步评分方法
-            CompositeScoreResult result = photoScoreService.performFullScoring(event.getFile());
+            CompositeScoreResult result = photoScoreService.performFullScoring(
+                    event.getFile(),
+                    event.getClientIp(),
+                    event.getUserAgent()
+            );
 
             // 构建响应
             Map<String, BigDecimal> scoreDetails = new HashMap<>();

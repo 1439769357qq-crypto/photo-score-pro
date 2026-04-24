@@ -197,27 +197,34 @@ public class CompositionScorer extends BaseScorer {
 
     @Override
     protected String generateComment(double rawScore, BufferedImage image) {
-        // 可以结合视觉重心位置给出更具体建议
         if (rawScore >= 0.85) {
-            return "构图精湛，主体位于视觉焦点上，画面平衡且富有层次。";
+            return "构图精湛，主体恰好位于黄金分割点，画面平衡且富有层次，引导线运用巧妙。";
         } else if (rawScore >= 0.70) {
-            return "构图良好，主体突出，但陪体或背景略有干扰。";
+            return "构图良好，主体突出，但陪体或背景略有干扰，可尝试轻微裁剪或改变角度。";
         } else if (rawScore >= 0.55) {
-            return "构图尚可，但主体位置不够突出，建议尝试三分法或引导线。";
+            return "构图尚可，但主体位置不够突出，建议尝试三分法，将主体置于交叉点上。";
         } else if (rawScore >= 0.40) {
-            return "构图存在不足，画面元素杂乱，缺乏明确视觉中心。";
+            return "构图存在不足，画面元素杂乱，缺乏明确视觉中心，建议简化背景或靠近主体。";
         } else {
-            return "构图混乱，建议简化背景，突出主体。";
+            return "构图混乱，主体淹没在环境中，建议重新构思画面，明确拍摄意图。";
         }
     }
-
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
-        if (rawScore < 0.55) {
-            suggestions.add("建议使用三分法构图，将主体放在黄金分割点上");
-            suggestions.add("简化背景，避免干扰元素进入画面");
-            suggestions.add("注意画面的视觉平衡，避免头重脚轻");
+        if (rawScore >= 0.85) {
+            suggestions.add("构图精湛，主体突出，画面平衡感强。可尝试更多创意角度。");
+        } else if (rawScore >= 0.70) {
+            suggestions.add("构图良好，但陪体或背景略有干扰。建议轻微裁剪，或改变拍摄角度以简化画面。");
+            suggestions.add("可尝试将主体置于三分线交点，增强视觉吸引力。");
+        } else if (rawScore >= 0.55) {
+            suggestions.add("主体不够突出，建议使用三分法构图，或将主体安排在画面的黄金分割点上。");
+            suggestions.add("背景元素稍显杂乱，尝试使用更大光圈虚化背景，或改变机位避开干扰物。");
+        } else if (rawScore >= 0.40) {
+            suggestions.add("构图存在明显不足，画面缺乏视觉中心。建议明确拍摄主体，并利用引导线将视线引向主体。");
+            suggestions.add("避免将主体置于画面正中央，除非追求对称构图。");
+        } else {
+            suggestions.add("构图混乱，建议重新构思画面。先确定一个明确的主体，再围绕它安排其他元素。");
         }
         return suggestions;
     }

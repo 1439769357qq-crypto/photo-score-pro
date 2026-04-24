@@ -90,28 +90,34 @@ public class ClarityScorer extends BaseScorer {
     @Override
     protected String generateComment(double rawScore, BufferedImage image) {
         if (rawScore >= 0.85) {
-            return "清晰度极佳，画面从中心到边缘都锐利分明，细节丰富。";
+            return "清晰度极佳，边缘锐利，毛发、纹理等细节清晰可辨，无可挑剔。";
         } else if (rawScore >= 0.70) {
-            return "清晰度良好，主体清晰，但边缘区域有轻微柔化。";
+            return "清晰度良好，主体清晰，但边缘区域有轻微柔化，建议收缩一档光圈拍摄。";
         } else if (rawScore >= 0.55) {
-            return "清晰度尚可，画面整体偏软，可能存在轻微对焦不准或手抖。";
+            return "清晰度尚可，画面整体偏软，可能对焦稍有不实或手持抖动，建议使用三脚架或提高快门速度。";
         } else if (rawScore >= 0.40) {
-            return "清晰度不足，画面模糊，建议检查对焦点或使用三脚架。";
+            return "清晰度不足，画面存在可见模糊，请检查对焦点是否准确落在主体上。";
         } else {
-            return "清晰度严重不足，照片可能已失焦，难以分辨细节。";
+            return "清晰度严重不足，照片已失焦，难以分辨细节，建议重新拍摄。";
         }
     }
 
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
-        if (rawScore < 0.55) {
-            suggestions.add("建议使用三脚架或提高快门速度以减少抖动");
-            suggestions.add("检查对焦点是否准确落在主体上");
-            suggestions.add("避免使用过大的光圈导致景深过浅");
-        }
-        if (rawScore < 0.70) {
-            suggestions.add("可以适当进行后期锐化处理");
+        if (rawScore >= 0.85) {
+            suggestions.add("清晰度极佳，无需额外建议，继续保持拍摄稳定性。");
+        } else if (rawScore >= 0.70) {
+            suggestions.add("边缘有轻微柔化，建议收缩一档光圈（如从 f/2.8 收至 f/4）以提升边缘画质。");
+            suggestions.add("如果手持拍摄，可尝试提高快门速度至安全快门以上。");
+        } else if (rawScore >= 0.55) {
+            suggestions.add("画面整体偏软，可能对焦不实或轻微手抖。建议使用三脚架，或开启镜头防抖功能。");
+            suggestions.add("检查对焦点是否准确落在主体上，必要时使用单点对焦。");
+        } else if (rawScore >= 0.40) {
+            suggestions.add("清晰度不足，画面存在可见模糊。请确保快门速度不低于焦距的倒数（如 50mm 镜头使用 1/50s 以上）。");
+            suggestions.add("弱光环境下可适当提高 ISO 以保证快门速度，或使用补光设备。");
+        } else {
+            suggestions.add("照片严重失焦，建议重新拍摄，确保对焦成功后再按下快门。");
         }
         return suggestions;
     }

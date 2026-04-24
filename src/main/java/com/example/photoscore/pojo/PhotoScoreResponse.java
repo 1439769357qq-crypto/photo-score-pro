@@ -26,4 +26,5 @@ public class PhotoScoreResponse {
     private LocalDateTime createdTime;
     private Boolean isDuplicate;
     private String duplicateMessage;
+    private List<String> improvementSuggestions;
 }

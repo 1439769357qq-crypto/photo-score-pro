@@ -113,10 +113,19 @@ public class ExposureScorer extends BaseScorer {
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
-        if (rawScore < 0.55) {
-            suggestions.add("建议使用曝光补偿功能，避免高光溢出");
-            suggestions.add("在强光环境下可降低ISO或缩小光圈");
-            suggestions.add("暗光环境建议使用三脚架延长曝光时间");
+        if (rawScore >= 0.85) {
+            suggestions.add("曝光控制精准，高光与阴影细节保留完整，无需调整。");
+        } else if (rawScore >= 0.70) {
+            suggestions.add("局部存在轻微过曝或欠曝，建议使用点测光对准主体，或适当调整曝光补偿（±0.3~0.7EV）。");
+            suggestions.add("后期可适当拉回高光或提亮暗部，恢复部分细节。");
+        } else if (rawScore >= 0.55) {
+            suggestions.add("曝光存在偏差，画面整体偏亮或偏暗。建议检查测光模式，尝试使用矩阵测光并配合曝光补偿。");
+            suggestions.add("在光比大的环境下，可开启 HDR 模式或多张合成。");
+        } else if (rawScore >= 0.40) {
+            suggestions.add("曝光不足或过曝明显，高光溢出或暗部死黑。建议使用手动模式，参考直方图调整参数。");
+            suggestions.add("避免正对强光源拍摄，必要时使用渐变镜平衡光比。");
+        } else {
+            suggestions.add("曝光严重失误，建议重新拍摄，确保主体亮度适中。");
         }
         return suggestions;
     }
