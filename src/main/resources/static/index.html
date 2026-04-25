@@ -3,71 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>📸 智能选片官 · AI照片评分系统</title>
+    <title>PhotoScore Studio · AI照片评分系统</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #2563eb;
-            --primary-2: #7c3aed;
-            --primary-3: #06b6d4;
-            --primary-light: rgba(37, 99, 235, 0.10);
-            --bg-body: #eef4ff;
-            --bg-surface: rgba(255, 255, 255, 0.82);
-            --bg-surface-solid: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --border-color: rgba(148, 163, 184, 0.28);
-            --success: #10b981;
+            --primary: #d6a354;
+            --primary-2: #f2d49b;
+            --primary-3: #8b5cf6;
+            --accent: #22d3ee;
+            --bg-body: #0b0d10;
+            --bg-surface: rgba(18, 21, 26, 0.78);
+            --bg-surface-2: rgba(255, 255, 255, 0.055);
+            --bg-solid: #151922;
+            --text-primary: #f7f2ea;
+            --text-secondary: #a8a29a;
+            --muted: #78716c;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --border-strong: rgba(214, 163, 84, 0.32);
+            --success: #22c55e;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --gold: #fbbf24;
-            --shadow: 0 24px 80px rgba(15, 23, 42, 0.10);
-            --shadow-soft: 0 14px 40px rgba(15, 23, 42, 0.08);
-            --radius: 28px;
-            --glass-blur: blur(22px);
+            --gold: #facc15;
+            --shadow: 0 28px 90px rgba(0, 0, 0, 0.46);
+            --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.26);
+            --radius: 30px;
+            --glass-blur: blur(24px);
         }
 
-        body.dark {
-            --bg-body: #070b16;
-            --bg-surface: rgba(15, 23, 42, 0.72);
-            --bg-surface-solid: #111827;
-            --text-primary: #f8fafc;
-            --text-secondary: #a7b5c8;
-            --border-color: rgba(148, 163, 184, 0.18);
-            --primary-light: rgba(37, 99, 235, 0.18);
-            --shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
-            --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.26);
+        body.light {
+            --bg-body: #f7f1e8;
+            --bg-surface: rgba(255, 255, 255, 0.82);
+            --bg-surface-2: rgba(255, 255, 255, 0.68);
+            --bg-solid: #ffffff;
+            --text-primary: #191714;
+            --text-secondary: #655f56;
+            --muted: #8a8176;
+            --border-color: rgba(41, 37, 36, 0.12);
+            --border-strong: rgba(163, 113, 42, 0.28);
+            --shadow: 0 28px 90px rgba(88, 71, 49, 0.18);
+            --shadow-soft: 0 18px 44px rgba(88, 71, 49, 0.12);
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-            background:
-                    radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.24), transparent 28%),
-                    radial-gradient(circle at 88% 6%, rgba(124, 58, 237, 0.22), transparent 30%),
-                    radial-gradient(circle at 70% 82%, rgba(6, 182, 212, 0.18), transparent 34%),
-                    linear-gradient(135deg, var(--bg-body), #f8fbff 48%, #eef4ff);
             min-height: 100vh;
-            padding: 24px;
             color: var(--text-primary);
+            padding: 26px;
+            background:
+                    radial-gradient(circle at 12% 10%, rgba(214, 163, 84, 0.18), transparent 26%),
+                    radial-gradient(circle at 92% 8%, rgba(139, 92, 246, 0.16), transparent 30%),
+                    radial-gradient(circle at 72% 88%, rgba(34, 211, 238, 0.11), transparent 32%),
+                    linear-gradient(135deg, #050608, var(--bg-body) 46%, #11100d);
             overflow-x: hidden;
             position: relative;
         }
 
-        body.dark {
+        body.light {
             background:
-                    radial-gradient(circle at 10% 8%, rgba(37, 99, 235, 0.24), transparent 30%),
-                    radial-gradient(circle at 92% 4%, rgba(124, 58, 237, 0.20), transparent 30%),
-                    radial-gradient(circle at 70% 80%, rgba(6, 182, 212, 0.12), transparent 34%),
-                    linear-gradient(135deg, #070b16, #0f172a 50%, #020617);
+                    radial-gradient(circle at 12% 10%, rgba(214, 163, 84, 0.18), transparent 28%),
+                    radial-gradient(circle at 92% 8%, rgba(139, 92, 246, 0.12), transparent 30%),
+                    radial-gradient(circle at 72% 88%, rgba(34, 211, 238, 0.10), transparent 32%),
+                    linear-gradient(135deg, #fbf7ef, var(--bg-body) 48%, #efe1cf);
         }
 
         body::before {
@@ -75,47 +78,44 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            opacity: 0.42;
-            background-image:
-                    linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at center, black, transparent 78%);
+            background:
+                    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: linear-gradient(to bottom, black, transparent 82%);
             z-index: -2;
         }
 
-        .bg-orb {
+        body.light::before {
+            background:
+                    linear-gradient(rgba(41,37,36,0.045) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(41,37,36,0.045) 1px, transparent 1px);
+        }
+
+        .grain {
             position: fixed;
-            width: 420px;
-            height: 420px;
-            border-radius: 999px;
-            filter: blur(22px);
-            opacity: 0.22;
+            inset: 0;
             pointer-events: none;
+            opacity: 0.11;
             z-index: -1;
-            animation: floatOrb 12s ease-in-out infinite alternate;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
         }
 
-        .orb-1 {
-            left: -160px;
-            top: 180px;
-            background: linear-gradient(135deg, #2563eb, #06b6d4);
-        }
-
-        .orb-2 {
-            right: -180px;
-            top: 420px;
-            background: linear-gradient(135deg, #7c3aed, #ec4899);
-            animation-delay: -4s;
-        }
-
-        @keyframes floatOrb {
-            from { transform: translate3d(0, 0, 0) scale(1); }
-            to { transform: translate3d(28px, -34px, 0) scale(1.08); }
+        .spotlight {
+            position: fixed;
+            pointer-events: none;
+            inset: auto auto 5% 50%;
+            transform: translateX(-50%);
+            width: 840px;
+            height: 460px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(214,163,84,0.12), transparent 62%);
+            filter: blur(8px);
+            z-index: -1;
         }
 
         .container {
-            max-width: 1440px;
+            max-width: 1480px;
             margin: 0 auto;
             position: relative;
         }
@@ -124,8 +124,8 @@
             display: flex;
             position: fixed;
             inset: 0;
-            background: rgba(2, 6, 23, 0.48);
-            backdrop-filter: blur(14px);
+            background: rgba(0, 0, 0, 0.58);
+            backdrop-filter: blur(18px);
             z-index: 3000;
             align-items: center;
             justify-content: center;
@@ -133,117 +133,106 @@
         }
 
         .welcome-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.94), rgba(255,255,255,0.74));
+            width: min(520px, 100%);
             border-radius: 36px;
-            padding: 44px;
-            max-width: 500px;
+            padding: 42px;
             text-align: center;
-            box-shadow: 0 40px 100px rgba(2, 6, 23, 0.24);
-            border: 1px solid rgba(255,255,255,0.62);
+            background:
+                    linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.045)),
+                    rgba(18,21,26,0.88);
+            border: 1px solid rgba(255,255,255,0.16);
+            box-shadow: 0 44px 110px rgba(0,0,0,0.48);
             position: relative;
             overflow: hidden;
         }
 
-        body.dark .welcome-card {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.76));
-            border-color: rgba(148, 163, 184, 0.2);
+        body.light .welcome-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.72));
         }
 
         .welcome-card::before {
             content: "";
             position: absolute;
-            inset: -2px;
-            background:
-                    radial-gradient(circle at 25% 0%, rgba(37, 99, 235, 0.22), transparent 38%),
-                    radial-gradient(circle at 80% 10%, rgba(124, 58, 237, 0.20), transparent 36%);
-            pointer-events: none;
+            inset: -80px -40px auto -40px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(214,163,84,0.32), transparent 62%);
         }
 
-        .welcome-card > * {
-            position: relative;
-        }
+        .welcome-card > * { position: relative; }
 
         .welcome-icon {
             width: 86px;
             height: 86px;
-            margin: 0 auto;
+            margin: 0 auto 20px;
             display: grid;
             place-items: center;
-            border-radius: 28px;
-            color: white;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-            box-shadow: 0 18px 50px rgba(37, 99, 235, 0.35);
-            font-size: 38px;
+            border-radius: 999px;
+            color: #111;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+            box-shadow: 0 22px 60px rgba(214, 163, 84, 0.25);
+            font-size: 35px;
         }
 
         .welcome-card h2 {
-            margin: 22px 0 10px;
-            font-size: 1.7rem;
-            letter-spacing: -0.03em;
+            font-size: 1.65rem;
+            letter-spacing: -0.04em;
+            margin-bottom: 10px;
         }
 
         .welcome-card p {
             color: var(--text-secondary);
+            line-height: 1.8;
             margin-bottom: 26px;
-            line-height: 1.7;
         }
 
         .btn {
-            padding: 11px 24px;
-            border-radius: 999px;
             border: none;
-            font-weight: 700;
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-weight: 800;
             cursor: pointer;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-            color: white;
-            transition: 0.22s ease;
-            box-shadow: 0 14px 34px rgba(37, 99, 235, 0.22);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            color: #12100d;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+            box-shadow: 0 18px 42px rgba(214, 163, 84, 0.22);
+            transition: 0.24s ease;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 18px 42px rgba(37, 99, 235, 0.32);
-            filter: saturate(1.12);
-        }
-
-        .btn:active:not(:disabled) {
-            transform: translateY(0);
+            box-shadow: 0 24px 60px rgba(214, 163, 84, 0.30);
+            filter: saturate(1.08);
         }
 
         .btn:disabled {
-            opacity: 0.45;
+            opacity: 0.48;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
         .btn-outline {
-            background: rgba(255, 255, 255, 0.56);
-            border: 1px solid var(--border-color);
             color: var(--text-primary);
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-color);
             box-shadow: none;
-            backdrop-filter: blur(10px);
-        }
-
-        body.dark .btn-outline {
-            background: rgba(15, 23, 42, 0.40);
+            backdrop-filter: var(--glass-blur);
         }
 
         .btn-outline:hover:not(:disabled) {
-            background: var(--primary-light);
-            border-color: rgba(37, 99, 235, 0.42);
+            border-color: var(--border-strong);
+            background: rgba(214, 163, 84, 0.10);
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 26px;
-            gap: 16px;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
         .logo-area {
@@ -253,101 +242,112 @@
         }
 
         .logo-mark {
-            width: 54px;
-            height: 54px;
-            border-radius: 18px;
+            width: 58px;
+            height: 58px;
+            border-radius: 999px;
             display: grid;
             place-items: center;
-            color: white;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-            box-shadow: 0 16px 38px rgba(37, 99, 235, 0.28);
+            color: #14110d;
+            background:
+                    radial-gradient(circle at 35% 30%, #fff5d6, transparent 28%),
+                    linear-gradient(135deg, var(--primary-2), var(--primary));
+            box-shadow: 0 18px 42px rgba(214, 163, 84, 0.24);
             position: relative;
-            overflow: hidden;
         }
 
         .logo-mark::after {
             content: "";
             position: absolute;
-            width: 70px;
-            height: 20px;
-            background: rgba(255,255,255,0.34);
-            transform: rotate(-35deg);
-            top: -20px;
-            left: -20px;
-            animation: shine 4s ease-in-out infinite;
+            inset: 12px;
+            border-radius: 999px;
+            border: 2px solid rgba(20, 17, 13, 0.25);
         }
 
-        @keyframes shine {
-            0%, 70% { transform: translateX(-70px) rotate(-35deg); }
-            100% { transform: translateX(110px) rotate(-35deg); }
+        .brand-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--primary-2);
+            font-size: 0.76rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 900;
+            margin-bottom: 5px;
         }
+
+        body.light .brand-kicker { color: #9a6b25; }
 
         .logo-area h1 {
-            font-size: clamp(1.5rem, 2.6vw, 2.35rem);
-            letter-spacing: -0.055em;
-            line-height: 1.05;
+            font-size: clamp(1.55rem, 2.8vw, 2.45rem);
+            line-height: 0.96;
+            letter-spacing: -0.065em;
         }
 
-        .logo-area .subtitle {
-            margin-top: 6px;
+        .subtitle {
+            margin-top: 7px;
             color: var(--text-secondary);
             font-size: 0.92rem;
         }
 
         .header-actions {
             display: flex;
-            gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
             justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .system-pill,
         .theme-toggle {
-            background: var(--bg-surface);
-            backdrop-filter: var(--glass-blur);
-            padding: 9px 16px;
-            border-radius: 999px;
-            border: 1px solid var(--border-color);
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 9px;
+            border-radius: 999px;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            backdrop-filter: var(--glass-blur);
+            box-shadow: var(--shadow-soft);
             user-select: none;
             white-space: nowrap;
-            box-shadow: var(--shadow-soft);
         }
 
-        .system-pill {
-            color: var(--text-secondary);
-            font-size: 0.92rem;
-        }
-
-        .system-pill i {
-            color: var(--success);
-        }
+        .system-pill i { color: var(--success); }
 
         .theme-toggle {
             cursor: pointer;
-            transition: 0.2s ease;
+            color: var(--text-primary);
+            transition: 0.22s ease;
         }
 
         .theme-toggle:hover {
+            border-color: var(--border-strong);
             transform: translateY(-1px);
-            border-color: rgba(37, 99, 235, 0.36);
         }
 
         .hero {
             position: relative;
+            border-radius: 42px;
             overflow: hidden;
-            border-radius: 36px;
-            padding: clamp(28px, 5vw, 54px);
-            margin-bottom: 24px;
+            min-height: 500px;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
             background:
-                    linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(37, 99, 235, 0.72)),
-                    radial-gradient(circle at 82% 22%, rgba(6, 182, 212, 0.45), transparent 34%);
-            color: white;
-            box-shadow: 0 30px 90px rgba(15, 23, 42, 0.22);
+                    linear-gradient(90deg, rgba(0,0,0,0.80), rgba(0,0,0,0.24)),
+                    radial-gradient(circle at 82% 18%, rgba(214,163,84,0.20), transparent 28%),
+                    linear-gradient(135deg, rgba(26,22,18,0.98), rgba(14,17,22,0.92));
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
             isolation: isolate;
+        }
+
+        body.light .hero {
+            background:
+                    linear-gradient(90deg, rgba(26,22,18,0.88), rgba(26,22,18,0.30)),
+                    radial-gradient(circle at 82% 18%, rgba(214,163,84,0.16), transparent 28%),
+                    linear-gradient(135deg, #32291d, #6c5434);
         }
 
         .hero::before {
@@ -355,65 +355,70 @@
             position: absolute;
             inset: 0;
             background:
-                    linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
-                    linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
-            background-size: 46px 46px;
-            mask-image: linear-gradient(90deg, black, transparent 72%);
-            opacity: 0.55;
+                    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+                    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 82px 82px;
+            mask-image: linear-gradient(90deg, black 0 52%, transparent 82%);
             z-index: -1;
         }
 
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 360px;
-            height: 360px;
-            right: -80px;
-            top: -110px;
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 62%);
-            z-index: -1;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.35fr 0.65fr;
-            gap: 28px;
-            align-items: center;
+        .hero-content {
+            padding: clamp(32px, 5vw, 62px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #fffaf0;
+            z-index: 2;
         }
 
         .eyebrow {
             display: inline-flex;
+            width: fit-content;
             align-items: center;
-            gap: 8px;
-            padding: 7px 12px;
+            gap: 9px;
+            padding: 8px 12px;
+            border: 1px solid rgba(242, 212, 155, 0.22);
             border-radius: 999px;
-            background: rgba(255,255,255,0.14);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: rgba(255,255,255,0.86);
-            font-size: 0.9rem;
-            margin-bottom: 16px;
+            color: #f2d49b;
+            background: rgba(255,255,255,0.065);
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            font-size: 0.76rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            margin-bottom: 18px;
         }
 
-        .hero h2 {
-            font-size: clamp(2rem, 5vw, 4.1rem);
+        .hero-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .hero-title-main {
+            font-size: clamp(2.3rem, 5vw, 4.4rem);
+            line-height: 1.04;
+            letter-spacing: -0.08em;
+            font-weight: 900;
+            color: #fffaf0;
+        }
+
+        .hero-title-accent {
+            font-size: clamp(2.2rem, 5.2vw, 4.8rem);
             line-height: 1.02;
-            letter-spacing: -0.07em;
-            max-width: 780px;
-        }
-
-        .hero h2 span {
-            background: linear-gradient(90deg, #ffffff, #bfdbfe, #a5f3fc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            letter-spacing: -0.08em;
+            font-weight: 900;
+            color: var(--primary-2);
+            font-style: italic;
+            font-family: Georgia, 'Times New Roman', serif;
         }
 
         .hero p {
-            max-width: 700px;
-            margin-top: 18px;
-            color: rgba(255,255,255,0.76);
-            line-height: 1.8;
+            margin-top: 24px;
+            color: rgba(255,250,240,0.74);
+            max-width: 720px;
+            line-height: 1.86;
             font-size: 1.02rem;
         }
 
@@ -421,92 +426,132 @@
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 12px;
-            margin-top: 26px;
+            margin-top: 28px;
         }
 
         .hero-stat {
-            padding: 16px;
+            padding: 18px;
             border-radius: 22px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
             backdrop-filter: blur(12px);
         }
 
         .hero-stat strong {
             display: block;
-            font-size: 1.5rem;
-            letter-spacing: -0.04em;
+            color: #fff;
+            font-size: 1.55rem;
+            letter-spacing: -0.05em;
         }
 
         .hero-stat span {
-            color: rgba(255,255,255,0.68);
+            display: block;
+            margin-top: 5px;
+            color: rgba(255,250,240,0.58);
             font-size: 0.86rem;
         }
 
-        .hero-panel {
-            padding: 20px;
-            border-radius: 28px;
-            background: rgba(255,255,255,0.14);
-            border: 1px solid rgba(255,255,255,0.18);
-            backdrop-filter: blur(16px);
-        }
-
-        .lens-visual {
-            width: min(100%, 280px);
-            aspect-ratio: 1;
-            margin: 0 auto;
-            border-radius: 999px;
-            background:
-                    radial-gradient(circle at center, #020617 0 18%, #1e293b 19% 32%, #2563eb 33% 36%, #0f172a 37% 52%, rgba(255,255,255,0.18) 53% 55%, #1e293b 56% 100%);
-            box-shadow:
-                    inset 0 0 30px rgba(255,255,255,0.18),
-                    inset 0 0 80px rgba(37, 99, 235, 0.26),
-                    0 30px 80px rgba(2, 6, 23, 0.38);
+        .hero-gallery {
             position: relative;
+            min-height: 500px;
+            overflow: hidden;
+            padding: 30px;
         }
 
-        .lens-visual::before {
+        .photo-stack-card {
+            position: absolute;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.16);
+            box-shadow: 0 36px 90px rgba(0,0,0,0.42);
+            background: #111;
+            backdrop-filter: blur(10px);
+        }
+
+        .photo-stack-card img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-stack-card::after {
             content: "";
             position: absolute;
-            width: 34%;
-            height: 34%;
-            top: 22%;
-            left: 24%;
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(255,255,255,0.62), rgba(255,255,255,0.05) 68%, transparent);
-            filter: blur(0.5px);
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.34), transparent 48%);
+            pointer-events: none;
         }
 
-        .lens-visual::after {
-            content: "AI";
+        .photo-stack-card.large {
+            width: 48%;
+            height: 340px;
+            right: 16%;
+            top: 34px;
+            transform: rotate(6deg);
+        }
+
+        .photo-stack-card.medium {
+            width: 39%;
+            height: 285px;
+            right: 50%;
+            top: 138px;
+            transform: rotate(-8deg);
+        }
+
+        .photo-stack-card.small {
+            width: 34%;
+            height: 230px;
+            right: 6%;
+            bottom: 34px;
+            transform: rotate(-3deg);
+        }
+
+        .photo-badge {
             position: absolute;
-            inset: 38%;
-            display: grid;
-            place-items: center;
+            top: 14px;
+            right: 14px;
+            z-index: 2;
+            padding: 8px 12px;
             border-radius: 999px;
-            color: rgba(255,255,255,0.9);
-            font-weight: 900;
-            letter-spacing: -0.05em;
-            background: radial-gradient(circle, rgba(37,99,235,0.75), rgba(2,6,23,0.7));
+            background: rgba(0,0,0,0.62);
+            color: #fff;
             border: 1px solid rgba(255,255,255,0.16);
+            backdrop-filter: blur(10px);
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+
+        .photo-label {
+            position: absolute;
+            left: 14px;
+            bottom: 14px;
+            z-index: 2;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.16);
+            backdrop-filter: blur(10px);
+            font-size: 0.82rem;
+            font-weight: 800;
         }
 
         .module-grid {
             display: grid;
-            grid-template-columns: 1fr;
             gap: 24px;
         }
 
         .card {
-            background: var(--bg-surface);
-            border-radius: var(--radius);
-            padding: 28px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
-            backdrop-filter: var(--glass-blur);
             position: relative;
             overflow: hidden;
+            border-radius: var(--radius);
+            padding: 30px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            backdrop-filter: var(--glass-blur);
+            margin-bottom: 24px;
         }
 
         .card::before {
@@ -514,248 +559,239 @@
             position: absolute;
             inset: 0;
             background:
-                    radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.08), transparent 36%),
-                    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.06), transparent 34%);
+                    radial-gradient(circle at 0 0, rgba(214,163,84,0.12), transparent 30%),
+                    radial-gradient(circle at 100% 0, rgba(139,92,246,0.10), transparent 28%);
             pointer-events: none;
         }
 
-        .card > * {
-            position: relative;
-        }
+        .card > * { position: relative; }
 
         .section-head {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 18px;
+            gap: 18px;
+            margin-bottom: 20px;
         }
 
         .section-title {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 14px;
         }
 
         .section-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             display: grid;
             place-items: center;
-            border-radius: 16px;
-            color: white;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+            border-radius: 999px;
+            color: #14110d;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+            box-shadow: 0 16px 34px rgba(214,163,84,0.20);
         }
 
-        .section-title h3,
         .section-title h2 {
-            line-height: 1.15;
-            letter-spacing: -0.035em;
+            letter-spacing: -0.045em;
+            font-size: 1.45rem;
+            line-height: 1.12;
         }
 
         .section-title p {
-            margin-top: 5px;
             color: var(--text-secondary);
+            margin-top: 6px;
+            line-height: 1.6;
             font-size: 0.94rem;
         }
 
         .mini-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 11px;
+            gap: 7px;
+            padding: 8px 12px;
             border-radius: 999px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border: 1px solid rgba(37, 99, 235, 0.18);
-            font-size: 0.86rem;
-            font-weight: 700;
+            border: 1px solid var(--border-strong);
+            color: var(--primary-2);
+            background: rgba(214,163,84,0.08);
             white-space: nowrap;
+            font-size: 0.84rem;
+            font-weight: 900;
         }
+
+        body.light .mini-tag { color: #8a5f20; }
 
         .upload-zone {
-            border: 1.5px dashed rgba(37, 99, 235, 0.30);
-            border-radius: 26px;
-            padding: 42px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.25s ease;
-            background:
-                    linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.04)),
-                    rgba(255,255,255,0.36);
             position: relative;
             overflow: hidden;
-        }
-
-        body.dark .upload-zone {
+            text-align: center;
+            cursor: pointer;
+            padding: 46px;
+            border-radius: 30px;
+            border: 1px dashed var(--border-strong);
             background:
-                    linear-gradient(135deg, rgba(37,99,235,0.16), rgba(124,58,237,0.08)),
-                    rgba(15, 23, 42, 0.28);
+                    linear-gradient(135deg, rgba(214,163,84,0.10), rgba(255,255,255,0.035)),
+                    var(--bg-surface-2);
+            transition: 0.26s ease;
         }
 
         .upload-zone::before {
             content: "";
             position: absolute;
-            inset: 10px;
-            border-radius: 22px;
-            border: 1px solid rgba(255,255,255,0.38);
+            inset: 12px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.07);
             pointer-events: none;
         }
 
-        body.dark .upload-zone::before {
-            border-color: rgba(148, 163, 184, 0.12);
-        }
+        body.light .upload-zone::before { border-color: rgba(41,37,36,0.06); }
 
         .upload-zone:hover {
-            border-color: rgba(37, 99, 235, 0.72);
             transform: translateY(-2px);
-            box-shadow: 0 18px 50px rgba(37, 99, 235, 0.14);
+            box-shadow: 0 28px 70px rgba(214,163,84,0.12);
+            border-color: rgba(242,212,155,0.55);
         }
 
         .upload-zone i {
-            width: 72px;
-            height: 72px;
+            width: 76px;
+            height: 76px;
             display: grid;
             place-items: center;
             margin: 0 auto;
-            border-radius: 24px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-            color: white;
-            box-shadow: 0 18px 42px rgba(37, 99, 235, 0.28);
+            border-radius: 999px;
+            color: #14110d;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+            box-shadow: 0 20px 46px rgba(214,163,84,0.20);
         }
 
         .upload-zone h3 {
             margin: 16px 0 8px;
+            letter-spacing: -0.03em;
             font-size: 1.25rem;
-            letter-spacing: -0.025em;
         }
 
         .upload-zone p {
             color: var(--text-secondary);
-            line-height: 1.65;
+            line-height: 1.7;
         }
 
         .control-row {
-            display:flex;
-            gap:12px;
-            margin-top:20px;
-            justify-content:center;
-            align-items:center;
-            flex-wrap:wrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .topn-control {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.50);
+            gap: 9px;
             border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 9px 13px;
             color: var(--text-secondary);
-        }
-
-        body.dark .topn-control {
-            background: rgba(15,23,42,0.34);
+            background: var(--bg-surface-2);
         }
 
         .topn-control input {
-            width: 66px;
-            padding: 7px 8px;
-            border-radius: 12px;
+            width: 68px;
             border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 7px 8px;
+            background: var(--bg-solid);
+            color: var(--text-primary);
             text-align: center;
-            font-weight: 800;
+            font-weight: 900;
         }
 
         .preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(142px, 1fr));
             gap: 16px;
             margin-top: 24px;
         }
 
         .preview-item {
             position: relative;
-            border-radius: 22px;
+            aspect-ratio: 0.82;
             overflow: hidden;
-            aspect-ratio: 1;
+            border-radius: 22px;
+            background: #111;
+            border: 1px solid var(--border-color);
             box-shadow: var(--shadow-soft);
-            background: var(--bg-body);
-            border: 1px solid rgba(255,255,255,0.38);
-            transition: 0.22s ease;
+            transition: 0.24s ease;
         }
 
         .preview-item:hover {
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.16);
+            transform: translateY(-6px);
+            border-color: var(--border-strong);
+            box-shadow: 0 28px 70px rgba(0,0,0,0.36);
         }
 
         .preview-item img {
+            display: block;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
         }
 
         .preview-item::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(2,6,23,0.28), transparent 48%);
             pointer-events: none;
+            background: linear-gradient(to top, rgba(0,0,0,0.42), transparent 50%);
         }
 
         .preview-remove {
             position: absolute;
-            top: 9px;
-            right: 9px;
-            background: rgba(2,6,23,0.62);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
             z-index: 2;
-            backdrop-filter: blur(8px);
+            top: 10px;
+            right: 10px;
+            width: 31px;
+            height: 31px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.16);
+            color: white;
+            background: rgba(0,0,0,0.62);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
         }
 
         .progress-container {
-            margin-top: 22px;
             display: none;
+            margin-top: 22px;
             padding: 14px;
             border-radius: 18px;
-            background: rgba(255,255,255,0.44);
+            background: var(--bg-surface-2);
             border: 1px solid var(--border-color);
         }
 
-        body.dark .progress-container {
-            background: rgba(15, 23, 42, 0.36);
-        }
-
         .progress-bar {
-            height: 12px;
-            background: rgba(148,163,184,0.22);
+            height: 11px;
             border-radius: 999px;
             overflow: hidden;
+            background: rgba(255,255,255,0.10);
         }
+
+        body.light .progress-bar { background: rgba(41,37,36,0.10); }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--primary-3));
             width: 0%;
-            transition: width 0.3s;
             border-radius: 999px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--accent));
+            transition: width 0.32s ease;
             position: relative;
+            overflow: hidden;
         }
 
         .progress-fill::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.36), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
             animation: progressShine 1.6s linear infinite;
         }
 
@@ -765,86 +801,85 @@
         }
 
         .progress-text {
+            margin-top: 9px;
             color: var(--text-secondary);
-            font-weight: 700;
+            font-weight: 900;
         }
 
         .loading-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(2,6,23,0.58);
-            backdrop-filter: blur(16px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            background: rgba(0,0,0,0.66);
+            backdrop-filter: blur(18px);
             color: white;
         }
 
         .loader {
-            width: 68px;
-            height: 68px;
-            border: 4px solid rgba(255,255,255,0.20);
-            border-top-color: #ffffff;
-            border-right-color: #93c5fd;
-            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            border-radius: 999px;
+            border: 4px solid rgba(255,255,255,0.16);
+            border-top-color: var(--primary-2);
+            border-right-color: var(--accent);
             animation: spin 0.9s linear infinite;
-            box-shadow: 0 0 40px rgba(37, 99, 235, 0.48);
+            box-shadow: 0 0 42px rgba(214,163,84,0.22);
         }
 
-        .results-panel {
-            display: none;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .results-panel.active {
-            display: block;
-            animation: slideIn 0.35s ease;
-        }
+        .results-panel { display: none; }
+        .results-panel.active { display: block; animation: rise 0.36s ease; }
+        @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stats-grid {
+        .stats-grid,
+        .smart-summary-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
 
-        .stat-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.56), rgba(255,255,255,0.26));
+        .smart-summary-grid { grid-template-columns: repeat(3, 1fr); }
+
+        .stat-card,
+        .smart-summary-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
             padding: 20px;
-            border-radius: 22px;
+            background: var(--bg-surface-2);
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-soft);
-            overflow: hidden;
-            position: relative;
         }
 
-        body.dark .stat-card {
-            background: linear-gradient(145deg, rgba(15,23,42,0.60), rgba(30,41,59,0.30));
-        }
-
-        .stat-card::after {
+        .stat-card::after,
+        .smart-summary-card::after {
             content: "";
             position: absolute;
             width: 120px;
             height: 120px;
-            right: -50px;
-            top: -50px;
+            right: -60px;
+            top: -60px;
             border-radius: 999px;
-            background: rgba(37,99,235,0.10);
+            background: rgba(214,163,84,0.12);
         }
 
-        .stat-value {
-            font-size: clamp(2rem, 3vw, 2.6rem);
-            font-weight: 900;
-            letter-spacing: -0.055em;
+        .stat-value,
+        .smart-summary-card strong {
+            display: block;
             margin-top: 8px;
+            font-size: clamp(1.8rem, 3vw, 2.55rem);
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: -0.07em;
         }
+
+        .smart-summary-card span { color: var(--text-secondary); }
 
         .chart-grid {
             display: grid;
@@ -853,136 +888,161 @@
             margin-bottom: 24px;
         }
 
-        .chart-grid > div {
+        .chart-grid > div,
+        .compare-chart-wrap {
             padding: 18px;
-            border-radius: 24px;
-            background: rgba(255,255,255,0.42);
+            border-radius: 26px;
+            background: var(--bg-surface-2);
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-soft);
-        }
-
-        body.dark .chart-grid > div {
-            background: rgba(15,23,42,0.34);
         }
 
         .result-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 0.95rem;
+            border-radius: 22px;
             overflow: hidden;
-            border-radius: 20px;
+            font-size: 0.94rem;
         }
 
         .result-table th,
         .result-table td {
             padding: 15px 12px;
-            text-align: left;
             border-bottom: 1px solid var(--border-color);
+            text-align: left;
             vertical-align: middle;
         }
 
         .result-table th {
-            background: rgba(37, 99, 235, 0.08);
-            color: var(--text-secondary);
-            font-size: 0.82rem;
+            color: var(--primary-2);
+            background: rgba(214,163,84,0.08);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
+            font-size: 0.78rem;
         }
 
-        .photo-row {
-            cursor: pointer;
-            transition: background 0.15s, transform 0.15s;
-        }
+        body.light .result-table th { color: #8a5f20; }
 
-        .photo-row:hover {
-            background: var(--primary-light);
-        }
+        .photo-row { cursor: pointer; transition: 0.16s ease; }
+        .photo-row:hover { background: rgba(214,163,84,0.08); }
 
         .score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 5px 12px;
             border-radius: 999px;
-            background: linear-gradient(135deg, var(--success), #34d399);
-            color: white;
-            display: inline-block;
             white-space: nowrap;
-            font-weight: 800;
+            color: #07120d;
+            background: linear-gradient(135deg, #bbf7d0, var(--success));
             font-size: 0.84rem;
+            font-weight: 900;
         }
 
         .score-badge.fail {
-            background: linear-gradient(135deg, var(--danger), #fb7185);
+            color: white;
+            background: linear-gradient(135deg, #fb7185, var(--danger));
         }
 
+        .score-badge.gold {
+            color: #14110d;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+        }
+
+        .file-name-cell,
         .comment-preview {
-            max-width: 220px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: var(--text-secondary);
         }
 
         .file-name-cell {
-            max-width: 190px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 700;
+            max-width: 200px;
+            font-weight: 850;
+        }
+
+        .comment-preview {
+            max-width: 250px;
+            color: var(--text-secondary);
         }
 
         .select-result-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 16px;
             margin-top: 16px;
         }
 
         .select-result-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.38));
-            border-radius: 24px;
-            padding: 14px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: var(--shadow-soft);
-            transition: 0.22s ease;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
             position: relative;
-        }
-
-        body.dark .select-result-card {
-            background: linear-gradient(145deg, rgba(15,23,42,0.64), rgba(30,41,59,0.34));
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 14px;
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-soft);
+            cursor: pointer;
+            transition: 0.25s ease;
         }
 
         .select-result-card::before {
-            content: "BEST";
+            content: "CURATED";
             position: absolute;
             top: 14px;
             left: 14px;
             z-index: 2;
-            padding: 5px 9px;
             border-radius: 999px;
-            background: linear-gradient(135deg, var(--gold), #f97316);
-            color: #1f2937;
-            font-size: 0.72rem;
-            font-weight: 900;
-            box-shadow: 0 10px 24px rgba(251,191,36,0.28);
+            padding: 6px 9px;
+            color: #14110d;
+            background: linear-gradient(135deg, var(--primary-2), var(--primary));
+            font-size: 0.68rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            box-shadow: 0 12px 28px rgba(214,163,84,0.22);
         }
 
         .select-result-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 24px 54px rgba(15, 23, 42, 0.16);
-            border-color: rgba(37,99,235,0.34);
+            transform: translateY(-7px);
+            border-color: var(--border-strong);
+            box-shadow: 0 34px 80px rgba(0,0,0,0.34);
         }
 
         .select-result-card img {
             width: 100%;
-            height: 160px;
+            height: 210px;
             object-fit: cover;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            background: var(--bg-body);
+            border-radius: 22px;
+            background: #111;
+            margin-bottom: 13px;
         }
+
+        .select-card-score {
+            color: var(--primary-2);
+            font-size: 1.55rem;
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: -0.06em;
+            margin: 8px 0;
+        }
+
+        body.light .select-card-score { color: #8a5f20; }
+
+        .select-card-reason {
+            color: var(--text-secondary);
+            line-height: 1.72;
+            font-size: 0.92rem;
+            margin-top: 8px;
+        }
+
+        .smart-section-title {
+            margin: 10px 0 14px;
+            font-size: 1.14rem;
+            font-weight: 950;
+            letter-spacing: -0.04em;
+        }
+
+        .smart-score-table-wrap { overflow-x: auto; margin-top: 10px; }
 
         .compare-row {
             display: flex;
@@ -992,155 +1052,106 @@
         }
 
         .compare-col {
+            min-width: 260px;
             text-align: center;
-            padding: 18px;
-            border-radius: 24px;
-            background: rgba(255,255,255,0.42);
+            padding: 20px;
+            border-radius: 26px;
+            background: var(--bg-surface-2);
             border: 1px solid var(--border-color);
-            min-width: 240px;
-        }
-
-        body.dark .compare-col {
-            background: rgba(15,23,42,0.34);
         }
 
         .compare-preview {
-            width: 200px;
-            height: 200px;
-            margin-top: 14px;
-            border-radius: 20px;
             display: none;
+            width: 220px;
+            height: 260px;
             object-fit: cover;
-            box-shadow: var(--shadow-soft);
+            margin-top: 15px;
+            border-radius: 24px;
             border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .compare-chart-wrap {
+            max-width: 600px;
+            margin: 20px auto 0;
         }
 
         .modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(2,6,23,0.52);
-            backdrop-filter: blur(16px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            background: rgba(0,0,0,0.64);
+            backdrop-filter: blur(20px);
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
-            background: var(--bg-surface);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 32px;
-            max-width: 860px;
+            max-width: 900px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
             padding: 34px;
+            border-radius: 34px;
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
-            box-shadow: 0 40px 120px rgba(2,6,23,0.30);
+            box-shadow: 0 44px 120px rgba(0,0,0,0.48);
+            backdrop-filter: var(--glass-blur);
         }
 
         .modal-close {
-            background: rgba(148,163,184,0.12);
-            border: 1px solid var(--border-color);
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface-2);
+            color: var(--text-primary);
             font-size: 24px;
             cursor: pointer;
-            color: var(--text-primary);
         }
 
         .footer-note {
+            color: var(--text-secondary);
             text-align: center;
             margin: 24px 0 10px;
-            color: var(--text-secondary);
             font-size: 0.92rem;
         }
 
-        input[type="number"] {
-            background: var(--bg-surface-solid);
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 980px) {
+        @media (max-width: 1060px) {
             body { padding: 16px; }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-panel {
-                display: none;
-            }
-
-            .stats-grid,
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .upload-zone {
-                padding: 34px 18px;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .section-head {
-                flex-direction: column;
-            }
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-actions { justify-content: flex-start; }
+            .hero { grid-template-columns: 1fr; }
+            .hero-gallery { display: none; }
+            .stats-grid, .smart-summary-grid, .chart-grid { grid-template-columns: 1fr; }
+            .section-head { flex-direction: column; }
         }
 
-        @media (max-width: 640px) {
-            .hero-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .logo-area {
-                align-items: flex-start;
-            }
-
-            .logo-mark {
-                width: 48px;
-                height: 48px;
-            }
-
-            .preview-grid {
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            }
-
-            .compare-col {
-                width: 100%;
-            }
+        @media (max-width: 660px) {
+            .hero-stats { grid-template-columns: 1fr; }
+            .logo-area { align-items: flex-start; }
+            .logo-mark { width: 48px; height: 48px; }
+            .upload-zone { padding: 34px 18px; }
+            .card { padding: 20px; }
+            .preview-grid { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }
+            .compare-col { width: 100%; }
         }
     </style>
 </head>
-
 <body>
-<div class="bg-orb orb-1"></div>
-<div class="bg-orb orb-2"></div>
+<div class="grain"></div>
+<div class="spotlight"></div>
 
 <div class="welcome-modal" id="welcomeModal">
     <div class="welcome-card">
         <div class="welcome-icon"><i class="fas fa-camera"></i></div>
-        <h2>欢迎进入专业照片评分系统</h2>
-        <p>以专业摄影评审维度为参考，覆盖清晰度、曝光、色彩、构图、视觉冲击力与社会价值等核心指标。</p>
-        <button class="btn" id="welcomeStartBtn" type="button"><i class="fas fa-wand-magic-sparkles"></i> 开始体验</button>
+        <h2>PhotoScore Studio</h2>
+        <p>用专业摄影工作室的方式完成照片评分、选片解释、雷达图分析与双图对比。</p>
+        <button class="btn" id="welcomeStartBtn" type="button"><i class="fas fa-wand-magic-sparkles"></i> 进入工作台</button>
     </div>
 </div>
 
@@ -1149,34 +1160,49 @@
         <div class="logo-area">
             <div class="logo-mark"><i class="fas fa-camera-retro"></i></div>
             <div>
-                <h1>PhotoScore Pro</h1>
-                <div class="subtitle">AI-powered Photo Curation & Quality Intelligence</div>
+                <div class="brand-kicker"><i class="fas fa-circle"></i> AI Photo Curation Suite</div>
+                <h1>PhotoScore Studio</h1>
+                <div class="subtitle">Professional Gallery Review · Score · Compare · Curate</div>
             </div>
         </div>
 
         <div class="header-actions">
             <div class="system-pill"><i class="fas fa-circle-check"></i> 本地AI引擎在线</div>
-            <div class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-                <span>深色模式</span>
-            </div>
+            <div class="theme-toggle" id="themeToggle"><i class="fas fa-sun"></i><span>浅色模式</span></div>
         </div>
     </div>
 
     <section class="hero">
-        <div class="hero-grid">
-            <div>
-                <div class="eyebrow"><i class="fas fa-sparkles"></i> Professional AI Photo Review System</div>
-                <h2>让每一组照片，都能快速筛出 <span>真正值得保留的作品</span></h2>
-                <p>批量上传、自动评分、雷达图分析、智能选片、双图对比一站式完成。界面保持原有接口与功能逻辑，仅提升展示层与交互质感。</p>
-                <div class="hero-stats">
-                    <div class="hero-stat"><strong>35+</strong><span>专业评估维度</span></div>
-                    <div class="hero-stat"><strong>Top N</strong><span>自动精选排序</span></div>
-                    <div class="hero-stat"><strong>Radar</strong><span>多维能力画像</span></div>
-                </div>
+        <div class="hero-content">
+            <div class="eyebrow"><i class="fas fa-aperture"></i> Editorial Review Desk</div>
+            <div class="hero-title-group">
+                <div class="hero-title-main">像摄影总监一样</div>
+                <div class="hero-title-accent">筛选你的作品</div>
             </div>
-            <div class="hero-panel">
-                <div class="lens-visual"></div>
+            <p>上传、评分、入选解释、全量分数排名、Top N 与全部照片雷达对比、双图维度雷达对比。所有判断都有数据支撑，也保留作品集级别的视觉呈现。</p>
+            <div class="hero-stats">
+                <div class="hero-stat"><strong>35+</strong><span>专业质量维度</span></div>
+                <div class="hero-stat"><strong>Top N</strong><span>AI 入选解释</span></div>
+                <div class="hero-stat"><strong>Radar</strong><span>维度对比图</span></div>
+            </div>
+        </div>
+        <div class="hero-gallery">
+            <div class="photo-stack-card large">
+                <img src="https://images.pexels.com/photos/132340/pexels-photo-132340.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="高质量风景摄影">
+                <div class="photo-badge">92.8 分</div>
+                <div class="photo-label">Landscape</div>
+            </div>
+
+            <div class="photo-stack-card medium">
+                <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="高质量人像摄影">
+                <div class="photo-badge">87.4 分</div>
+                <div class="photo-label">Portrait</div>
+            </div>
+
+            <div class="photo-stack-card small">
+                <img src="https://images.pexels.com/photos/1535162/pexels-photo-1535162.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="高质量街头摄影">
+                <div class="photo-badge">AI 精选</div>
+                <div class="photo-label">Street</div>
             </div>
         </div>
     </section>
@@ -1207,34 +1233,32 @@
             </div>
 
             <div class="progress-container" id="progressContainer">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText" style="margin-top:8px;"></div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="progress-text" id="progressText"></div>
             </div>
 
             <div class="control-row">
                 <button class="btn" id="scoreBtn" disabled type="button"><i class="fas fa-chart-simple"></i> 开始评分</button>
-                <button class="btn btn-outline" id="clearBtn" type="button"><i class="fas fa-rotate-left"></i> 清空</button>
+                <button class="btn btn-outline" id="clearBtn" type="button"><i class="fas fa-trash-can"></i> 清空</button>
             </div>
         </div>
 
         <div class="card">
             <div class="section-head">
                 <div class="section-title">
-                    <div class="section-icon"><i class="fas fa-robot"></i></div>
+                    <div class="section-icon"><i class="fas fa-ranking-star"></i></div>
                     <div>
                         <h2>智能选片</h2>
-                        <p>自动按综合质量分排序，选出前 N 张最佳照片。</p>
+                        <p>显示全部照片分数、Top N 入选原因、雷达图与分数排序对比图。</p>
                     </div>
                 </div>
-                <div class="mini-tag"><i class="fas fa-trophy"></i> AI Curation</div>
+                <div class="mini-tag"><i class="fas fa-trophy"></i> Curated Selection</div>
             </div>
 
             <div class="upload-zone" id="uploadZoneSelect">
-                <i class="fas fa-robot" style="font-size:34px;"></i>
+                <i class="fas fa-images" style="font-size:34px;"></i>
                 <h3>上传大量照片，一键选出最佳</h3>
-                <p>自动评分排序，选出前N张最佳照片并支持打包下载</p>
+                <p>自动评分排序，告诉你为什么选中这些照片</p>
             </div>
 
             <input type="file" id="fileInputSelect" accept="image/*" multiple style="display:none;">
@@ -1244,21 +1268,17 @@
             </div>
 
             <div class="progress-container" id="progressSelect">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFillSelect"></div>
-                </div>
-                <div class="progress-text" id="progressTextSelect" style="margin-top:8px;"></div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFillSelect"></div></div>
+                <div class="progress-text" id="progressTextSelect"></div>
             </div>
 
             <div class="control-row">
                 <label class="topn-control">
-                    <i class="fas fa-ranking-star"></i>
-                    选出前
-                    <input type="number" id="topNInput" value="5" min="1" max="50">
-                    张
+                    <i class="fas fa-ranking-star"></i> 选出前
+                    <input type="number" id="topNInput" value="5" min="1" max="50"> 张
                 </label>
                 <button class="btn" id="btnSelect" disabled type="button"><i class="fas fa-wand-magic-sparkles"></i> 开始选片</button>
-                <button class="btn btn-outline" id="btnClearSelect" type="button"><i class="fas fa-rotate-left"></i> 清空</button>
+                <button class="btn btn-outline" id="btnClearSelect" type="button"><i class="fas fa-trash-can"></i> 清空</button>
             </div>
 
             <div id="selectResult" style="margin-top:24px;"></div>
@@ -1270,7 +1290,7 @@
                     <div class="section-icon"><i class="fas fa-scale-balanced"></i></div>
                     <div>
                         <h2>照片对比</h2>
-                        <p>对两张照片进行维度化比较，快速判断优劣差异。</p>
+                        <p>对两张照片进行维度化比较，并通过雷达图直观展示差异。</p>
                     </div>
                 </div>
                 <div class="mini-tag"><i class="fas fa-code-compare"></i> Side-by-side</div>
@@ -1279,22 +1299,19 @@
             <div class="compare-row">
                 <div class="compare-col">
                     <input type="file" id="compareFile1" accept="image/*" style="display:none;">
-                    <button class="btn btn-outline" id="selectCompare1Btn" type="button"><i class="fas fa-image"></i> 选择照片1</button>
-                    <br>
+                    <button class="btn btn-outline" id="selectCompare1Btn" type="button"><i class="fas fa-image"></i> 选择照片1</button><br>
                     <img id="comparePreview1" class="compare-preview" alt="照片1预览">
                 </div>
-
                 <div class="compare-col">
                     <input type="file" id="compareFile2" accept="image/*" style="display:none;">
-                    <button class="btn btn-outline" id="selectCompare2Btn" type="button"><i class="fas fa-image"></i> 选择照片2</button>
-                    <br>
+                    <button class="btn btn-outline" id="selectCompare2Btn" type="button"><i class="fas fa-image"></i> 选择照片2</button><br>
                     <img id="comparePreview2" class="compare-preview" alt="照片2预览">
                 </div>
             </div>
 
             <div class="control-row">
                 <button class="btn" id="compareBtn" disabled type="button"><i class="fas fa-scale-balanced"></i> 开始对比</button>
-                <button class="btn btn-outline" id="clearCompareBtn" type="button"><i class="fas fa-rotate-left"></i> 清空</button>
+                <button class="btn btn-outline" id="clearCompareBtn" type="button"><i class="fas fa-trash-can"></i> 清空</button>
             </div>
 
             <div id="compareResult" style="margin-top:24px;"></div>
@@ -1325,13 +1342,7 @@
                 <table class="result-table" id="resultTable">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>预览</th>
-                        <th>文件名</th>
-                        <th>总分</th>
-                        <th>评语</th>
-                        <th>建议</th>
-                        <th>评级</th>
+                        <th>#</th><th>预览</th><th>文件名</th><th>总分</th><th>评语</th><th>建议</th><th>评级</th>
                     </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -1340,18 +1351,18 @@
         </div>
     </div>
 
-    <div class="footer-note">本地AI引擎 · 专业影像分析 · PhotoScore Pro</div>
+    <div class="footer-note">PhotoScore Studio · 本地AI引擎 · 专业影像分析</div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader"></div>
-    <p style="margin-top:18px; font-weight:800; letter-spacing:0.02em;">AI 分析中...</p>
-    <p style="margin-top:6px; color:rgba(255,255,255,0.68); font-size:0.92rem;">正在提取照片质量特征与评审维度</p>
+    <p style="margin-top:18px; font-weight:900; letter-spacing:.02em;">AI 分析中...</p>
+    <p style="margin-top:6px; color:rgba(255,255,255,.62); font-size:.92rem;">正在提取照片质量特征与评审维度</p>
 </div>
 
 <div class="modal" id="detailModal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; margin-bottom:16px; gap:12px;">
+        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:16px;">
             <h2 id="modalFileName"></h2>
             <button class="modal-close" id="modalCloseBtn" type="button">×</button>
         </div>
@@ -1365,6 +1376,16 @@
         const MAX_UPLOAD_COUNT = 20;
         const MAX_POLL_COUNT = 300;
 
+        const DIMENSIONS = [
+            { label: '清晰度', key: '清晰度评分' },
+            { label: '噪点', key: '噪点控制评分' },
+            { label: '曝光', key: '曝光控制评分' },
+            { label: '色彩', key: '色彩准确度评分' },
+            { label: '构图', key: '构图水平评分' },
+            { label: '冲击力', key: '冲击力评分' },
+            { label: '社会价值', key: '社会价值评分' }
+        ];
+
         const selected = [];
         const selectedSelect = [];
         const topIds = [];
@@ -1372,44 +1393,27 @@
         let radarChart = null;
         let barChart = null;
         let compareRadarChart = null;
+        let selectRadarChart = null;
+        let selectBarChart = null;
 
-        let dark = false;
-
+        let light = false;
         let f1 = null;
         let f2 = null;
         let compareUrl1 = null;
         let compareUrl2 = null;
 
         const previewUrlMap = new WeakMap();
-
         const $ = id => document.getElementById(id);
 
-        const setText = (id, text) => {
-            const el = $(id);
-            if (el) el.textContent = text;
-        };
-
-        const setHTML = (id, html) => {
-            const el = $(id);
-            if (el) el.innerHTML = html;
-        };
-
-        const show = id => {
-            const el = $(id);
-            if (el) el.style.display = 'block';
-        };
-
-        const hide = id => {
-            const el = $(id);
-            if (el) el.style.display = 'none';
-        };
+        const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+        const setHTML = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        const show = id => { const el = $(id); if (el) el.style.display = 'block'; };
+        const hide = id => { const el = $(id); if (el) el.style.display = 'none'; };
 
         const toggleModal = showIt => {
             const m = $('detailModal');
             if (!m) return;
-
-            if (showIt) m.classList.add('active');
-            else m.classList.remove('active');
+            if (showIt) m.classList.add('active'); else m.classList.remove('active');
         };
 
         function escapeHTML(str = '') {
@@ -1427,117 +1431,98 @@
         }
 
         function fallbackImageSvg(width = 100, height = 100) {
-            return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '"%3E%3Crect width="' + width + '" height="' + height + '" fill="%23ddd"/%3E%3Ctext x="50%25" y="55%25" font-size="20" text-anchor="middle" fill="%23999"%3E📷%3C/text%3E%3C/svg%3E';
+            return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '"%3E%3Crect width="' + width + '" height="' + height + '" fill="%23111111"/%3E%3Ctext x="50%25" y="55%25" font-size="20" text-anchor="middle" fill="%23d6a354"%3E📷%3C/text%3E%3C/svg%3E';
         }
 
-        function getChartTextColor() {
-            return dark ? '#edf2f7' : '#1a2b3c';
-        }
-
-        function safeScore(value) {
-            const n = Number(value);
-            return Number.isFinite(n) ? n : 0;
-        }
-
-        function setLoading(isLoading) {
-            $('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
-        }
+        function getChartTextColor() { return light ? '#191714' : '#f7f2ea'; }
+        function safeScore(value) { const n = Number(value); return Number.isFinite(n) ? n : 0; }
+        function setLoading(isLoading) { $('loadingOverlay').style.display = isLoading ? 'flex' : 'none'; }
 
         function clearPreviewUrls(files) {
             files.forEach(file => {
                 const url = previewUrlMap.get(file);
-                if (url) {
-                    URL.revokeObjectURL(url);
-                    previewUrlMap.delete(file);
-                }
+                if (url) { URL.revokeObjectURL(url); previewUrlMap.delete(file); }
             });
         }
 
         function getPreviewUrl(file) {
             let url = previewUrlMap.get(file);
-
-            if (!url) {
-                url = URL.createObjectURL(file);
-                previewUrlMap.set(file, url);
-            }
-
+            if (!url) { url = URL.createObjectURL(file); previewUrlMap.set(file, url); }
             return url;
         }
 
-        $('welcomeStartBtn').addEventListener('click', () => {
-            hide('welcomeModal');
-        });
+        function getDimensionArray(item) {
+            const details = item?.scoreDetails || {};
+            return DIMENSIONS.map(d => safeScore(details[d.key]));
+        }
 
-        $('welcomeModal').addEventListener('click', e => {
-            if (e.target === $('welcomeModal')) hide('welcomeModal');
-        });
+        function averageDimensionArray(items) {
+            if (!items.length) return DIMENSIONS.map(() => 0);
+            const sum = DIMENSIONS.map(() => 0);
+            items.forEach(item => getDimensionArray(item).forEach((v, idx) => sum[idx] += v));
+            return sum.map(v => v / items.length);
+        }
+
+        function getTopStrengthLabels(item, count = 3) {
+            const details = item?.scoreDetails || {};
+            return DIMENSIONS.map(d => ({ label: d.label, value: safeScore(details[d.key]) }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, count)
+                .filter(it => it.value > 0)
+                .map(it => it.label);
+        }
+
+        function buildSelectionReason(item, rank, topN) {
+            const strengths = getTopStrengthLabels(item, 3);
+            const prefix = rank <= topN ? `综合分排名第 ${rank}，进入 Top ${topN}` : `综合分排名第 ${rank}，未进入 Top ${topN}`;
+            const strengthText = strengths.length ? `优势维度：${strengths.join('、')}` : '优势维度：整体表现较均衡';
+            const firstReason = item?.scoreReasons?.[0] || '综合质量表现良好';
+            return `${prefix}；${strengthText}。${firstReason}`;
+        }
+
+        $('welcomeStartBtn').addEventListener('click', () => hide('welcomeModal'));
+        $('welcomeModal').addEventListener('click', e => { if (e.target === $('welcomeModal')) hide('welcomeModal'); });
 
         $('themeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            dark = document.body.classList.contains('dark');
-
+            document.body.classList.toggle('light');
+            light = document.body.classList.contains('light');
             const icon = $('themeToggle').querySelector('i');
             const span = $('themeToggle').querySelector('span');
-
-            icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
-            span.textContent = dark ? '浅色模式' : '深色模式';
-
+            icon.className = light ? 'fas fa-moon' : 'fas fa-sun';
+            span.textContent = light ? '深色模式' : '浅色模式';
             if (radarChart) radarChart.update();
             if (barChart) barChart.update();
             if (compareRadarChart) compareRadarChart.update();
+            if (selectRadarChart) selectRadarChart.update();
+            if (selectBarChart) selectBarChart.update();
         });
 
         async function compress(file) {
             if (!file || !file.type.startsWith('image/')) return file;
             if (file.size < 200 * 1024) return file;
 
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 const reader = new FileReader();
-
                 reader.onload = e => {
                     const img = new Image();
-
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-
-                        let w = img.width;
-                        let h = img.height;
-
+                        let w = img.width, h = img.height;
                         if (w > 1200 || h > 1200) {
-                            if (w > h) {
-                                h = Math.round(h * 1200 / w);
-                                w = 1200;
-                            } else {
-                                w = Math.round(w * 1200 / h);
-                                h = 1200;
-                            }
+                            if (w > h) { h = Math.round(h * 1200 / w); w = 1200; }
+                            else { w = Math.round(w * 1200 / h); h = 1200; }
                         }
-
-                        canvas.width = w;
-                        canvas.height = h;
-
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         canvas.toBlob(blob => {
-                            if (!blob) {
-                                resolve(file);
-                                return;
-                            }
-
+                            if (!blob) { resolve(file); return; }
                             const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
-
-                            resolve(new File([blob], newName, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            }));
+                            resolve(new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() }));
                         }, 'image/jpeg', 0.8);
                     };
-
                     img.onerror = () => resolve(file);
                     img.src = e.target.result;
                 };
-
                 reader.onerror = () => resolve(file);
                 reader.readAsDataURL(file);
             });
@@ -1562,28 +1547,15 @@
 
                 btn.addEventListener('click', e => {
                     e.stopPropagation();
-
                     const url = previewUrlMap.get(f);
-                    if (url) {
-                        URL.revokeObjectURL(url);
-                        previewUrlMap.delete(f);
-                    }
-
+                    if (url) { URL.revokeObjectURL(url); previewUrlMap.delete(f); }
                     files.splice(i, 1);
                     renderPreview(files, gridId, containerId, btnId);
-
                     if (files.length === 0) {
                         hide(containerId);
-
-                        if (btnId === 'scoreBtn') {
-                            $('fileInput').value = '';
-                        }
-
-                        if (btnId === 'btnSelect') {
-                            $('fileInputSelect').value = '';
-                        }
+                        if (btnId === 'scoreBtn') $('fileInput').value = '';
+                        if (btnId === 'btnSelect') $('fileInputSelect').value = '';
                     }
-
                     updateButtonState(btnId, files.length === 0);
                 });
 
@@ -1592,9 +1564,7 @@
                 grid.appendChild(div);
             });
 
-            if (files.length > 0) show(containerId);
-            else hide(containerId);
-
+            if (files.length > 0) show(containerId); else hide(containerId);
             updateButtonState(btnId, files.length === 0);
         }
 
@@ -1605,42 +1575,21 @@
 
         async function addFiles(files, fileList, gridId, containerId, btnId) {
             const incoming = Array.from(files || []).filter(f => f && f.type && f.type.startsWith('image/'));
-
-            if (!incoming.length) {
-                alert('请选择有效的图片文件');
-                return;
-            }
+            if (!incoming.length) { alert('请选择有效的图片文件'); return; }
 
             const remainSlots = MAX_UPLOAD_COUNT - fileList.length;
-
-            if (remainSlots <= 0) {
-                alert('单次最多上传 ' + MAX_UPLOAD_COUNT + ' 张照片');
-                return;
-            }
+            if (remainSlots <= 0) { alert('单次最多上传 ' + MAX_UPLOAD_COUNT + ' 张照片'); return; }
 
             const filesToAdd = incoming.slice(0, remainSlots);
-
-            if (incoming.length > remainSlots) {
-                alert('最多只能再添加 ' + remainSlots + ' 张，本次已自动截取前 ' + remainSlots + ' 张');
-            }
+            if (incoming.length > remainSlots) alert('最多只能再添加 ' + remainSlots + ' 张，本次已自动截取前 ' + remainSlots + ' 张');
 
             setLoading(true);
-
             try {
                 for (const f of filesToAdd) {
                     const comp = await compress(f);
-
-                    const duplicated = fileList.find(sf =>
-                        sf.name === comp.name &&
-                        sf.size === comp.size &&
-                        sf.lastModified === comp.lastModified
-                    );
-
-                    if (!duplicated) {
-                        fileList.push(comp);
-                    }
+                    const duplicated = fileList.find(sf => sf.name === comp.name && sf.size === comp.size && sf.lastModified === comp.lastModified);
+                    if (!duplicated) fileList.push(comp);
                 }
-
                 renderPreview(fileList, gridId, containerId, btnId);
                 updateButtonState(btnId, fileList.length === 0);
             } catch (err) {
@@ -1652,24 +1601,11 @@
         }
 
         function bindUpload(zoneId, inputId, gridId, containerId, btnId, getFileList) {
-            const zone = $(zoneId);
-            const input = $(inputId);
-
+            const zone = $(zoneId), input = $(inputId);
             zone.onclick = () => input.click();
-
-            zone.ondragover = e => {
-                e.preventDefault();
-            };
-
-            zone.ondrop = async e => {
-                e.preventDefault();
-                await addFiles(e.dataTransfer.files, getFileList(), gridId, containerId, btnId);
-            };
-
-            input.onchange = async e => {
-                await addFiles(e.target.files, getFileList(), gridId, containerId, btnId);
-                e.target.value = '';
-            };
+            zone.ondragover = e => e.preventDefault();
+            zone.ondrop = async e => { e.preventDefault(); await addFiles(e.dataTransfer.files, getFileList(), gridId, containerId, btnId); };
+            input.onchange = async e => { await addFiles(e.target.files, getFileList(), gridId, containerId, btnId); e.target.value = ''; };
         }
 
         bindUpload('uploadZone', 'fileInput', 'previewGrid', 'previewContainer', 'scoreBtn', () => selected);
@@ -1678,97 +1614,59 @@
         $('clearBtn').addEventListener('click', () => {
             clearPreviewUrls(selected);
             selected.length = 0;
-
             $('fileInput').value = '';
             $('previewGrid').innerHTML = '';
             hide('previewContainer');
-
             $('scoreBtn').disabled = true;
             $('scoreBtn').innerHTML = '<i class="fas fa-chart-simple"></i> 开始评分';
-
             $('resultsPanel').classList.remove('active');
-
             hide('progressContainer');
             $('progressFill').style.width = '0%';
             setText('progressText', '');
-
             $('statsGrid').innerHTML = '';
             $('tableBody').innerHTML = '';
-
-            if (radarChart) {
-                radarChart.destroy();
-                radarChart = null;
-            }
-
-            if (barChart) {
-                barChart.destroy();
-                barChart = null;
-            }
+            if (radarChart) { radarChart.destroy(); radarChart = null; }
+            if (barChart) { barChart.destroy(); barChart = null; }
         });
 
         $('btnClearSelect').addEventListener('click', () => {
             clearPreviewUrls(selectedSelect);
             selectedSelect.length = 0;
             topIds.length = 0;
-
             $('fileInputSelect').value = '';
             $('selectPreviewGrid').innerHTML = '';
             hide('previewSelectGrid');
-
             $('btnSelect').disabled = true;
             $('btnSelect').innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
-
             setHTML('selectResult', '');
-
             hide('progressSelect');
             $('progressFillSelect').style.width = '0%';
             setText('progressTextSelect', '');
+            if (selectRadarChart) { selectRadarChart.destroy(); selectRadarChart = null; }
+            if (selectBarChart) { selectBarChart.destroy(); selectBarChart = null; }
         });
 
         $('clearCompareBtn').addEventListener('click', () => {
-            f1 = null;
-            f2 = null;
-
-            if (compareUrl1) {
-                URL.revokeObjectURL(compareUrl1);
-                compareUrl1 = null;
-            }
-
-            if (compareUrl2) {
-                URL.revokeObjectURL(compareUrl2);
-                compareUrl2 = null;
-            }
-
-            hide('comparePreview1');
-            hide('comparePreview2');
-
+            f1 = null; f2 = null;
+            if (compareUrl1) { URL.revokeObjectURL(compareUrl1); compareUrl1 = null; }
+            if (compareUrl2) { URL.revokeObjectURL(compareUrl2); compareUrl2 = null; }
+            hide('comparePreview1'); hide('comparePreview2');
             $('comparePreview1').removeAttribute('src');
             $('comparePreview2').removeAttribute('src');
-
             $('compareFile1').value = '';
             $('compareFile2').value = '';
-
             $('compareBtn').disabled = true;
             setHTML('compareResult', '');
-
-            if (compareRadarChart) {
-                compareRadarChart.destroy();
-                compareRadarChart = null;
-            }
+            if (compareRadarChart) { compareRadarChart.destroy(); compareRadarChart = null; }
         });
 
         async function submitBatch(files, progId, fillId, textId, showFullResult, triggerBtnId) {
-            if (!files.length) {
-                alert('请先上传照片');
-                return;
-            }
-
+            if (!files.length) { alert('请先上传照片'); return; }
             const triggerBtn = $(triggerBtnId);
             if (triggerBtn) {
                 triggerBtn.disabled = true;
                 triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-spinner fa-spin"></i> 评分中...' : '<i class="fas fa-spinner fa-spin"></i> 选片中...';
             }
-
             show(progId);
             $(fillId).style.width = '0%';
             setText(textId, '0/' + files.length);
@@ -1776,154 +1674,77 @@
             try {
                 const fd = new FormData();
                 files.forEach(f => fd.append('files', f));
-
-                const resp = await fetch(API + '/photo-score/batch/async', {
-                    method: 'POST',
-                    body: fd
-                });
-
-                if (!resp.ok) {
-                    throw new Error('HTTP ' + resp.status);
-                }
-
+                const resp = await fetch(API + '/photo-score/batch/async', { method: 'POST', body: fd });
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 const result = await resp.json();
-
                 if (result.code !== 200) {
                     alert(result.message || '提交失败');
                     hide(progId);
-
-                    if (triggerBtn) {
-                        triggerBtn.disabled = files.length === 0;
-                        triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-chart-simple"></i> 开始评分' : '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
-                    }
-
+                    resetBatchBtn(triggerBtn, files, showFullResult);
                     return;
                 }
-
                 const taskId = result.data;
-
-                if (!taskId) {
-                    alert('任务ID为空，无法查询进度');
-                    hide(progId);
-
-                    if (triggerBtn) {
-                        triggerBtn.disabled = files.length === 0;
-                        triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-chart-simple"></i> 开始评分' : '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
-                    }
-
-                    return;
-                }
-
+                if (!taskId) { alert('任务ID为空，无法查询进度'); hide(progId); resetBatchBtn(triggerBtn, files, showFullResult); return; }
                 startPolling(taskId, progId, fillId, textId, showFullResult, triggerBtnId, files);
             } catch (err) {
                 console.error(err);
                 alert('请求失败，请检查网络或服务端状态');
                 hide(progId);
-
-                if (triggerBtn) {
-                    triggerBtn.disabled = files.length === 0;
-                    triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-chart-simple"></i> 开始评分' : '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
-                }
+                resetBatchBtn(triggerBtn, files, showFullResult);
             }
         }
 
+        function resetBatchBtn(triggerBtn, files, showFullResult) {
+            if (!triggerBtn) return;
+            triggerBtn.disabled = files.length === 0;
+            triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-chart-simple"></i> 开始评分' : '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
+        }
+
         function startPolling(taskId, progId, fillId, textId, showFullResult, triggerBtnId, filesRef) {
-            let retryCount = 0;
-            let pollCount = 0;
-
+            let retryCount = 0, pollCount = 0;
             const triggerBtn = $(triggerBtnId);
-
-            const finishButton = () => {
-                if (triggerBtn) {
-                    triggerBtn.disabled = filesRef.length === 0;
-                    triggerBtn.innerHTML = showFullResult ? '<i class="fas fa-chart-simple"></i> 开始评分' : '<i class="fas fa-wand-magic-sparkles"></i> 开始选片';
-                }
-            };
+            const finishButton = () => resetBatchBtn(triggerBtn, filesRef, showFullResult);
 
             const poll = setInterval(async () => {
                 pollCount++;
-
-                if (pollCount > MAX_POLL_COUNT) {
-                    clearInterval(poll);
-                    hide(progId);
-                    finishButton();
-                    alert('任务超时，请稍后重试');
-                    return;
-                }
-
+                if (pollCount > MAX_POLL_COUNT) { clearInterval(poll); hide(progId); finishButton(); alert('任务超时，请稍后重试'); return; }
                 try {
                     const pr = await fetch(API + '/photo-score/batch/progress/' + encodeURIComponent(taskId));
-
-                    if (!pr.ok) {
-                        throw new Error('HTTP ' + pr.status);
-                    }
-
+                    if (!pr.ok) throw new Error('HTTP ' + pr.status);
                     const pj = await pr.json();
-
                     if (pj.code !== 200) {
                         retryCount++;
-
-                        if (retryCount >= 5) {
-                            clearInterval(poll);
-                            hide(progId);
-                            finishButton();
-                            alert(pj.message || '获取进度失败');
-                        }
-
+                        if (retryCount >= 5) { clearInterval(poll); hide(progId); finishButton(); alert(pj.message || '获取进度失败'); }
                         return;
                     }
-
                     const info = pj.data || {};
                     const total = Number(info.total) || 1;
                     const processed = Number(info.processed) || 0;
-
-                    const percent = Math.min(processed / total * 100, 100);
-                    $(fillId).style.width = percent + '%';
+                    $(fillId).style.width = Math.min(processed / total * 100, 100) + '%';
                     setText(textId, processed + '/' + total);
-
                     if (info.completed) {
                         clearInterval(poll);
                         hide(progId);
                         finishButton();
-
                         const data = info.result?.data || info.result || info.data;
-
                         if (data && Array.isArray(data.scores)) {
-                            if (showFullResult) displayFullResult(data);
-                            else displayTopResult(data);
-                        } else {
-                            alert('评分失败，返回数据格式异常');
-                        }
+                            if (showFullResult) displayFullResult(data); else displayTopResult(data);
+                        } else alert('评分失败，返回数据格式异常');
                     }
                 } catch (err) {
                     console.error(err);
                     retryCount++;
-
-                    if (retryCount >= 5) {
-                        clearInterval(poll);
-                        hide(progId);
-                        finishButton();
-                        alert('任务进度查询失败');
-                    }
+                    if (retryCount >= 5) { clearInterval(poll); hide(progId); finishButton(); alert('任务进度查询失败'); }
                 }
             }, 1000);
         }
 
-        $('scoreBtn').addEventListener('click', () => {
-            submitBatch(selected, 'progressContainer', 'progressFill', 'progressText', true, 'scoreBtn');
-        });
-
-        $('btnSelect').addEventListener('click', () => {
-            submitBatch(selectedSelect, 'progressSelect', 'progressFillSelect', 'progressTextSelect', false, 'btnSelect');
-        });
+        $('scoreBtn').addEventListener('click', () => submitBatch(selected, 'progressContainer', 'progressFill', 'progressText', true, 'scoreBtn'));
+        $('btnSelect').addEventListener('click', () => submitBatch(selectedSelect, 'progressSelect', 'progressFillSelect', 'progressTextSelect', false, 'btnSelect'));
 
         function displayFullResult(data) {
             const scores = Array.isArray(data.scores) ? data.scores : [];
-
-            if (!scores.length) {
-                alert('没有可展示的评分结果');
-                return;
-            }
+            if (!scores.length) { alert('没有可展示的评分结果'); return; }
 
             $('resultsPanel').classList.add('active');
             $('resultTimestamp').innerHTML = '<i class="far fa-clock"></i> ' + new Date().toLocaleTimeString();
@@ -1935,14 +1756,13 @@
             const processTimeMs = Number.isFinite(Number(data.processTimeMs)) ? data.processTimeMs : '-';
 
             $('statsGrid').innerHTML =
-                '<div class="stat-card" style="background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:white;"><div>平均分</div><div class="stat-value">' + avg.toFixed(1) + '分</div></div>' +
+                '<div class="stat-card" style="background:linear-gradient(135deg,var(--primary-2),var(--primary)); color:#14110d;"><div>平均分</div><div class="stat-value">' + avg.toFixed(1) + '分</div></div>' +
                 '<div class="stat-card"><div>及格率</div><div class="stat-value">' + passRate + '%</div></div>' +
                 '<div class="stat-card"><div>最高分</div><div class="stat-value">' + max.toFixed(1) + '分</div></div>' +
                 '<div class="stat-card"><div>耗时</div><div class="stat-value">' + processTimeMs + 'ms</div></div>';
 
             const tbody = $('tableBody');
             tbody.innerHTML = '';
-
             const barData = [0, 0, 0, 0, 0];
             const dims = [0, 0, 0, 0, 0, 0, 0];
             let cnt = 0;
@@ -1951,40 +1771,24 @@
                 const tr = document.createElement('tr');
                 tr.className = 'photo-row';
                 tr.addEventListener('click', () => showDetailModal(item));
-
                 const c1 = item.scoreReasons?.[0] || '暂无评语';
                 const c2 = item.improvementSuggestions?.[0] || '暂无建议';
                 const imgSrc = item.imagePath ? apiUrl(item.imagePath) : fallbackImageSvg(50, 50);
 
                 tr.innerHTML =
                     '<td>' + (i + 1) + '</td>' +
-                    '<td><img src="' + escapeHTML(imgSrc) + '" alt="预览" style="width:54px;height:54px;border-radius:14px;object-fit:cover;box-shadow:0 8px 20px rgba(15,23,42,.16);" onerror="this.src=\'' + fallbackImageSvg(50, 50) + '\'"></td>' +
+                    '<td><img src="' + escapeHTML(imgSrc) + '" alt="预览" style="width:56px;height:68px;border-radius:14px;object-fit:cover;box-shadow:0 10px 22px rgba(0,0,0,.22);" onerror="this.src=\'' + fallbackImageSvg(50, 50) + '\'"></td>' +
                     '<td><div class="file-name-cell" title="' + escapeHTML(item.fileName || '') + '">' + escapeHTML(item.fileName || '') + '</div></td>' +
                     '<td><strong>' + safeScore(item.qualityScore).toFixed(1) + '</strong></td>' +
                     '<td><div class="comment-preview" title="' + escapeHTML(c1) + '">' + escapeHTML(c1) + '</div></td>' +
                     '<td><div class="comment-preview" title="' + escapeHTML(c2) + '">' + escapeHTML(c2) + '</div></td>' +
                     '<td><span class="score-badge ' + (item.isPass ? '' : 'fail') + '">' + (item.isPass ? '及格' : '不及格') + '</span></td>';
-
                 tbody.appendChild(tr);
 
                 const sc = safeScore(item.qualityScore);
+                if (sc < 60) barData[0]++; else if (sc < 70) barData[1]++; else if (sc < 80) barData[2]++; else if (sc < 90) barData[3]++; else barData[4]++;
 
-                if (sc < 60) barData[0]++;
-                else if (sc < 70) barData[1]++;
-                else if (sc < 80) barData[2]++;
-                else if (sc < 90) barData[3]++;
-                else barData[4]++;
-
-                if (item.scoreDetails) {
-                    dims[0] += safeScore(item.scoreDetails['清晰度评分']);
-                    dims[1] += safeScore(item.scoreDetails['噪点控制评分']);
-                    dims[2] += safeScore(item.scoreDetails['曝光控制评分']);
-                    dims[3] += safeScore(item.scoreDetails['色彩准确度评分']);
-                    dims[4] += safeScore(item.scoreDetails['构图水平评分']);
-                    dims[5] += safeScore(item.scoreDetails['冲击力评分']);
-                    dims[6] += safeScore(item.scoreDetails['社会价值评分']);
-                    cnt++;
-                }
+                if (item.scoreDetails) { getDimensionArray(item).forEach((v, idx) => dims[idx] += v); cnt++; }
             });
 
             renderCharts(dims.map(v => cnt ? v / cnt : 0), barData);
@@ -1992,74 +1796,116 @@
         }
 
         function displayTopResult(data) {
-            const scores = Array.isArray(data.scores) ? data.scores : [];
+            const scores = Array.isArray(data.scores) ? data.scores.slice() : [];
+            if (!scores.length) { alert('没有可展示的选片结果'); return; }
 
-            if (!scores.length) {
-                alert('没有可展示的选片结果');
-                return;
-            }
-
+            scores.sort((a, b) => safeScore(b.qualityScore) - safeScore(a.qualityScore));
             const rawTopN = parseInt($('topNInput').value, 10) || 5;
             const topN = Math.max(1, Math.min(rawTopN, 50, scores.length));
-
-            const topScores = scores
-                .slice()
-                .sort((a, b) => safeScore(b.qualityScore) - safeScore(a.qualityScore))
-                .slice(0, topN);
+            const topScores = scores.slice(0, topN);
 
             topIds.length = 0;
-            topScores.forEach(item => {
-                if (item.id != null) topIds.push(item.id);
-            });
+            topScores.forEach(item => { if (item.id != null) topIds.push(item.id); });
+
+            const avgAll = scores.reduce((sum, item) => sum + safeScore(item.qualityScore), 0) / scores.length;
+            const avgTop = topScores.reduce((sum, item) => sum + safeScore(item.qualityScore), 0) / topScores.length;
+            const bestScore = safeScore(topScores[0]?.qualityScore);
 
             const container = $('selectResult');
             container.innerHTML = '';
 
-            const title = document.createElement('h4');
-            title.textContent = '🏆 精选Top ' + topN + ' 最佳照片';
-            title.style.fontSize = '1.25rem';
-            title.style.letterSpacing = '-0.03em';
+            const summary = document.createElement('div');
+            summary.className = 'smart-summary-grid';
+            summary.innerHTML =
+                '<div class="smart-summary-card"><span>已分析照片</span><strong>' + scores.length + '</strong></div>' +
+                '<div class="smart-summary-card"><span>Top ' + topN + ' 平均分</span><strong>' + avgTop.toFixed(1) + '</strong></div>' +
+                '<div class="smart-summary-card"><span>最佳照片分数</span><strong>' + bestScore.toFixed(1) + '</strong></div>';
+            container.appendChild(summary);
+
+            const chartWrap = document.createElement('div');
+            chartWrap.className = 'chart-grid';
+            chartWrap.innerHTML = '<div><canvas id="selectRadarChart"></canvas></div><div><canvas id="selectBarChart"></canvas></div>';
+            container.appendChild(chartWrap);
+
+            const title = document.createElement('div');
+            title.className = 'smart-section-title';
+            title.textContent = '🏆 Top ' + topN + ' 精选照片与入选原因';
             container.appendChild(title);
 
             const grid = document.createElement('div');
             grid.className = 'select-result-grid';
 
             topScores.forEach((item, i) => {
+                const reason = buildSelectionReason(item, i + 1, topN);
                 const card = document.createElement('div');
                 card.className = 'select-result-card';
 
                 const img = document.createElement('img');
                 img.src = item.imagePath ? apiUrl(item.imagePath) : fallbackImageSvg(100, 100);
                 img.alt = item.fileName || '精选照片';
-                img.onerror = function () {
-                    this.src = fallbackImageSvg(100, 100);
-                };
+                img.onerror = function () { this.src = fallbackImageSvg(100, 100); };
+
+                const rank = document.createElement('div');
+                rank.innerHTML = '<span class="score-badge gold">#' + (i + 1) + ' 入选</span>';
 
                 const name = document.createElement('div');
-                name.style.fontWeight = '800';
+                name.style.fontWeight = '900';
                 name.style.overflow = 'hidden';
                 name.style.textOverflow = 'ellipsis';
                 name.style.whiteSpace = 'nowrap';
-                name.textContent = '#' + (i + 1) + ' ' + (item.fileName || '');
+                name.style.marginTop = '9px';
+                name.textContent = item.fileName || '';
 
                 const score = document.createElement('div');
-                score.style.fontSize = '1.45rem';
-                score.style.fontWeight = '900';
-                score.style.letterSpacing = '-0.04em';
-                score.style.color = 'var(--primary)';
-                score.style.marginTop = '4px';
+                score.className = 'select-card-score';
                 score.textContent = safeScore(item.qualityScore).toFixed(1) + '分';
 
+                const reasonEl = document.createElement('div');
+                reasonEl.className = 'select-card-reason';
+                reasonEl.textContent = reason;
+
                 card.appendChild(img);
+                card.appendChild(rank);
                 card.appendChild(name);
                 card.appendChild(score);
-
+                card.appendChild(reasonEl);
                 card.addEventListener('click', () => showDetailModal(item));
-
                 grid.appendChild(card);
             });
 
             container.appendChild(grid);
+
+            const tableTitle = document.createElement('div');
+            tableTitle.className = 'smart-section-title';
+            tableTitle.textContent = '📋 全部照片评分明细';
+            tableTitle.style.marginTop = '24px';
+            container.appendChild(tableTitle);
+
+            const tableWrap = document.createElement('div');
+            tableWrap.className = 'smart-score-table-wrap';
+            const rows = scores.map((item, index) => {
+                const selectedFlag = index < topN;
+                const reason = buildSelectionReason(item, index + 1, topN);
+                const imgSrc = item.imagePath ? apiUrl(item.imagePath) : fallbackImageSvg(50, 50);
+                return `
+                    <tr class="photo-row" data-index="${index}">
+                        <td>${index + 1}</td>
+                        <td><img src="${escapeHTML(imgSrc)}" alt="预览" style="width:56px;height:68px;border-radius:14px;object-fit:cover;" onerror="this.src='${fallbackImageSvg(50, 50)}'"></td>
+                        <td><div class="file-name-cell" title="${escapeHTML(item.fileName || '')}">${escapeHTML(item.fileName || '')}</div></td>
+                        <td><strong>${safeScore(item.qualityScore).toFixed(1)}</strong></td>
+                        <td>${selectedFlag ? '<span class="score-badge gold">入选</span>' : '<span class="score-badge fail">未入选</span>'}</td>
+                        <td><div class="comment-preview" title="${escapeHTML(reason)}">${escapeHTML(reason)}</div></td>
+                    </tr>`;
+            }).join('');
+
+            tableWrap.innerHTML = `
+                <table class="result-table">
+                    <thead><tr><th>排名</th><th>预览</th><th>文件名</th><th>分数</th><th>状态</th><th>说明</th></tr></thead>
+                    <tbody id="smartScoreTbody">${rows}</tbody>
+                </table>`;
+            container.appendChild(tableWrap);
+
+            document.querySelectorAll('#smartScoreTbody .photo-row').forEach((tr, idx) => tr.addEventListener('click', () => showDetailModal(scores[idx])));
 
             const downloadBtn = document.createElement('button');
             downloadBtn.className = 'btn';
@@ -2067,159 +1913,124 @@
             downloadBtn.type = 'button';
             downloadBtn.innerHTML = '<i class="fas fa-download"></i> 打包下载Top照片';
             downloadBtn.addEventListener('click', downloadTopPhotos);
-
             container.appendChild(downloadBtn);
 
             if (!topIds.length) {
                 downloadBtn.disabled = true;
-
                 const note = document.createElement('p');
                 note.style.color = 'var(--text-secondary)';
                 note.style.marginTop = '8px';
                 note.textContent = '当前结果未返回照片ID，因此暂不可打包下载。';
                 container.appendChild(note);
             }
+
+            renderSmartSelectionCharts(scores, topScores, avgAll, avgTop);
+        }
+
+        function renderSmartSelectionCharts(allScores, topScores, avgAll, avgTop) {
+            if (selectRadarChart) selectRadarChart.destroy();
+            if (selectBarChart) selectBarChart.destroy();
+
+            const gridColor = light ? 'rgba(41,37,36,0.12)' : 'rgba(255,255,255,0.12)';
+            const textColor = getChartTextColor();
+            const allAvgDimensions = averageDimensionArray(allScores);
+            const topAvgDimensions = averageDimensionArray(topScores);
+
+            selectRadarChart = new Chart($('selectRadarChart').getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: DIMENSIONS.map(d => d.label),
+                    datasets: [
+                        { label: 'Top N 平均维度', data: topAvgDimensions, backgroundColor: 'rgba(214,163,84,0.18)', borderColor: '#d6a354', pointBackgroundColor: '#f2d49b', pointRadius: 4 },
+                        { label: '全部平均维度', data: allAvgDimensions, backgroundColor: 'rgba(34,211,238,0.10)', borderColor: '#22d3ee', pointBackgroundColor: '#22d3ee', pointRadius: 4 }
+                    ]
+                },
+                options: chartRadarOptions('Top N 平均维度 vs 全部平均维度', textColor, gridColor)
+            });
+
+            selectBarChart = new Chart($('selectBarChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: allScores.map((_, idx) => '#' + (idx + 1)),
+                    datasets: [{ label: '照片分数', data: allScores.map(item => safeScore(item.qualityScore)), backgroundColor: allScores.map((_, idx) => idx < topScores.length ? '#d6a354' : '#22d3ee'), borderRadius: 12 }]
+                },
+                options: chartBarOptions(`全部照片分数排序对比（Top平均 ${avgTop.toFixed(1)} / 全部平均 ${avgAll.toFixed(1)}）`, textColor, gridColor, true)
+            });
         }
 
         function downloadTopPhotos() {
-            if (!topIds.length) {
-                alert('无可下载的照片，请先完成智能选片');
-                return;
-            }
-
+            if (!topIds.length) { alert('无可下载的照片，请先完成智能选片'); return; }
             const ids = topIds.map(id => encodeURIComponent(id)).join(',');
             window.open(API + '/photo-score/download?ids=' + ids, '_blank');
         }
-
         window.downloadTopPhotos = downloadTopPhotos;
+
+        function chartRadarOptions(title, textColor, gridColor) {
+            return {
+                responsive: true,
+                plugins: { title: { display: !!title, text: title, color: textColor, font: { size: 15, weight: '800' } }, legend: { labels: { color: textColor, font: { weight: '800' } } } },
+                scales: { r: { min: 0, max: 100, ticks: { color: textColor, stepSize: 20 }, pointLabels: { color: textColor, font: { weight: '800' } }, grid: { color: gridColor }, angleLines: { color: gridColor } } }
+            };
+        }
+
+        function chartBarOptions(title, textColor, gridColor, max100) {
+            return {
+                responsive: true,
+                plugins: { title: { display: !!title, text: title, color: textColor, font: { size: 15, weight: '800' } }, legend: { labels: { color: textColor, font: { weight: '800' } } } },
+                scales: { y: { beginAtZero: true, max: max100 ? 100 : undefined, ticks: { color: textColor, precision: 0 }, grid: { color: gridColor } }, x: { ticks: { color: textColor, font: { weight: '700' } }, grid: { color: gridColor } } }
+            };
+        }
 
         function renderCharts(radarData, barData) {
             if (radarChart) radarChart.destroy();
             if (barChart) barChart.destroy();
-
-            const gridColor = dark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.10)';
+            const gridColor = light ? 'rgba(41,37,36,0.12)' : 'rgba(255,255,255,0.12)';
             const textColor = getChartTextColor();
 
             radarChart = new Chart($('radarChart').getContext('2d'), {
                 type: 'radar',
-                data: {
-                    labels: ['清晰度', '噪点', '曝光', '色彩', '构图', '冲击力', '社会价值'],
-                    datasets: [{
-                        label: '平均得分',
-                        data: radarData,
-                        backgroundColor: 'rgba(37,99,235,0.20)',
-                        borderColor: '#2563eb',
-                        pointBackgroundColor: '#7c3aed',
-                        pointBorderColor: '#ffffff',
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            labels: { color: textColor, font: { weight: '700' } }
-                        }
-                    },
-                    scales: {
-                        r: {
-                            min: 0,
-                            max: 100,
-                            ticks: { stepSize: 20, color: textColor, font: { size: 13 } },
-                            pointLabels: { color: textColor, font: { size: 15, weight: '700' } },
-                            grid: { color: gridColor },
-                            angleLines: { color: gridColor }
-                        }
-                    }
-                }
+                data: { labels: DIMENSIONS.map(d => d.label), datasets: [{ label: '平均得分', data: radarData, backgroundColor: 'rgba(214,163,84,0.18)', borderColor: '#d6a354', pointBackgroundColor: '#f2d49b', pointRadius: 4 }] },
+                options: chartRadarOptions('', textColor, gridColor)
             });
 
             barChart = new Chart($('barChart').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: ['0-59', '60-69', '70-79', '80-89', '90-100'],
-                    datasets: [{
-                        label: '照片数量',
-                        data: barData,
-                        backgroundColor: ['#ef4444', '#f59e0b', '#06b6d4', '#2563eb', '#7c3aed'],
-                        borderRadius: 12
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { labels: { color: textColor, font: { weight: '700' } } }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: textColor, font: { size: 13 }, precision: 0 },
-                            grid: { color: gridColor }
-                        },
-                        x: {
-                            ticks: { color: textColor, font: { size: 13, weight: '700' } },
-                            grid: { color: gridColor }
-                        }
-                    }
-                }
+                data: { labels: ['0-59', '60-69', '70-79', '80-89', '90-100'], datasets: [{ label: '照片数量', data: barData, backgroundColor: ['#ef4444', '#f59e0b', '#22d3ee', '#d6a354', '#8b5cf6'], borderRadius: 12 }] },
+                options: chartBarOptions('', textColor, gridColor, false)
             });
         }
 
         function showDetailModal(item) {
             $('modalFileName').textContent = item.fileName || '';
-
             const finalSug = (item.improvementSuggestions || []).find(s => String(s).startsWith('【优先改进】'));
-
             let html = '';
 
-            html += '<div style="text-align:center; font-size:3.6rem; font-weight:900; letter-spacing:-0.06em; background:linear-gradient(135deg,var(--primary),var(--primary-2)); -webkit-background-clip:text; background-clip:text; color:transparent;">' +
-                safeScore(item.qualityScore).toFixed(1) +
-                '</div>';
+            html += '<div style="text-align:center;font-size:3.8rem;font-weight:950;letter-spacing:-.075em;color:var(--primary-2);">' + safeScore(item.qualityScore).toFixed(1) + '</div>';
 
             if (finalSug) {
-                html += '<div style="background:linear-gradient(135deg,rgba(251,191,36,.20),rgba(249,115,22,.12)); color:var(--text-primary); padding:14px; border-radius:18px; margin:20px 0; font-weight:800; border:1px solid rgba(251,191,36,.28);">⚠️ ' +
-                    escapeHTML(String(finalSug).replace('【优先改进】', '')) +
-                    '</div>';
+                html += '<div style="background:rgba(214,163,84,.12);padding:15px;border-radius:18px;margin:20px 0;font-weight:900;border:1px solid var(--border-strong);">⚠️ ' + escapeHTML(String(finalSug).replace('【优先改进】', '')) + '</div>';
             }
 
-            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:24px 0;">';
-
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0;">';
             Object.entries(item.scoreDetails || {}).forEach(([k, v]) => {
-                html += '<div style="padding:14px; background:var(--primary-light); border-radius:16px; border:1px solid var(--border-color);">' +
-                    '<small style="color:var(--text-secondary);">' + escapeHTML(k) + '</small><br>' +
-                    '<strong style="font-size:1.2rem;">' + escapeHTML(v) + '</strong>' +
-                    '</div>';
+                html += '<div style="padding:14px;background:var(--bg-surface-2);border-radius:16px;border:1px solid var(--border-color);"><small style="color:var(--text-secondary);">' + escapeHTML(k) + '</small><br><strong style="font-size:1.18rem;">' + escapeHTML(v) + '</strong></div>';
             });
-
             html += '</div>';
 
-            html += '<h4>评语</h4><ul style="margin:8px 0 20px 20px; line-height:1.8;">';
-            (item.scoreReasons || []).forEach(r => {
-                html += '<li>' + escapeHTML(r) + '</li>';
-            });
+            html += '<h4>评语</h4><ul style="margin:8px 0 20px 20px;line-height:1.85;">';
+            (item.scoreReasons || []).forEach(r => html += '<li>' + escapeHTML(r) + '</li>');
             html += '</ul>';
 
-            html += '<h4>改进建议</h4><ul style="margin:8px 0 0 20px; line-height:1.8;">';
-            (item.improvementSuggestions || [])
-                .filter(s => !String(s).startsWith('【优先改进】'))
-                .forEach(s => {
-                    html += '<li>' + escapeHTML(s) + '</li>';
-                });
+            html += '<h4>改进建议</h4><ul style="margin:8px 0 0 20px;line-height:1.85;">';
+            (item.improvementSuggestions || []).filter(s => !String(s).startsWith('【优先改进】')).forEach(s => html += '<li>' + escapeHTML(s) + '</li>');
             html += '</ul>';
 
             $('modalBody').innerHTML = html;
             toggleModal(true);
         }
 
-        $('modalCloseBtn').addEventListener('click', () => {
-            toggleModal(false);
-        });
-
-        $('detailModal').addEventListener('click', e => {
-            if (e.target === $('detailModal')) {
-                toggleModal(false);
-            }
-        });
+        $('modalCloseBtn').addEventListener('click', () => toggleModal(false));
+        $('detailModal').addEventListener('click', e => { if (e.target === $('detailModal')) toggleModal(false); });
 
         $('selectCompare1Btn').addEventListener('click', () => $('compareFile1').click());
         $('selectCompare2Btn').addEventListener('click', () => $('compareFile2').click());
@@ -2227,11 +2038,7 @@
         $('compareFile1').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
-
-            if (compareUrl1) {
-                URL.revokeObjectURL(compareUrl1);
-            }
-
+            if (compareUrl1) URL.revokeObjectURL(compareUrl1);
             f1 = file;
             compareUrl1 = URL.createObjectURL(file);
             $('comparePreview1').src = compareUrl1;
@@ -2242,11 +2049,7 @@
         $('compareFile2').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
-
-            if (compareUrl2) {
-                URL.revokeObjectURL(compareUrl2);
-            }
-
+            if (compareUrl2) URL.revokeObjectURL(compareUrl2);
             f2 = file;
             compareUrl2 = URL.createObjectURL(file);
             $('comparePreview2').src = compareUrl2;
@@ -2256,170 +2059,67 @@
 
         $('compareBtn').addEventListener('click', async () => {
             if (!f1 || !f2) return;
-
             setLoading(true);
-
             try {
                 const fd = new FormData();
                 fd.append('file1', f1);
                 fd.append('file2', f2);
-
-                const resp = await fetch(API + '/photo-score/compare', {
-                    method: 'POST',
-                    body: fd
-                });
-
-                if (!resp.ok) {
-                    throw new Error('HTTP ' + resp.status);
-                }
-
+                const resp = await fetch(API + '/photo-score/compare', { method: 'POST', body: fd });
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 const res = await resp.json();
-
-                if (res.code === 200 && res.data) {
-                    displayCompareResult(res.data);
-                } else {
-                    alert(res.message || '对比失败');
-                }
+                if (res.code === 200 && res.data) displayCompareResult(res.data); else alert(res.message || '对比失败');
             } catch (err) {
                 console.error(err);
                 alert('对比请求失败，请检查网络或服务端状态');
-            } finally {
-                setLoading(false);
-            }
+            } finally { setLoading(false); }
         });
 
         function displayCompareResult(data) {
-            const p1 = data.photo1 || {};
-            const p2 = data.photo2 || {};
-
+            const p1 = data.photo1 || {}, p2 = data.photo2 || {};
             const buildHTML = (p, label) => {
-                let html = '<div style="flex:1; min-width:250px; background:var(--primary-light); border-radius:22px; padding:20px; border:1px solid var(--border-color);">';
-
+                let html = '<div style="flex:1;min-width:250px;background:var(--bg-surface-2);border-radius:24px;padding:20px;border:1px solid var(--border-color);">';
                 html += '<h4>' + escapeHTML(label) + '</h4>';
-                html += '<div style="font-size:2.3rem; font-weight:900; letter-spacing:-0.05em;">' + safeScore(p.qualityScore).toFixed(1) + '分</div>';
+                html += '<div style="font-size:2.5rem;font-weight:950;letter-spacing:-.07em;color:var(--primary-2);">' + safeScore(p.qualityScore).toFixed(1) + '分</div>';
                 html += '<div class="score-badge ' + (p.isPass ? '' : 'fail') + '">' + (p.isPass ? '✅ 及格' : '❌ 不及格') + '</div>';
-
                 if (p.scoreDetails) {
                     html += '<div style="margin-top:12px;">';
-
-                    Object.entries(p.scoreDetails).forEach(([k, v]) => {
-                        html += '<div style="display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--border-color);">' +
-                            '<small>' + escapeHTML(k) + '</small> ' +
-                            '<strong>' + escapeHTML(v) + '</strong>' +
-                            '</div>';
-                    });
-
+                    Object.entries(p.scoreDetails).forEach(([k, v]) => html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border-color);"><small>' + escapeHTML(k) + '</small><strong>' + escapeHTML(v) + '</strong></div>');
                     html += '</div>';
                 }
-
-                if (p.scoreReasons?.length) {
-                    html += '<p style="margin-top:10px; font-weight:800;">💬 评语</p>';
-                    html += '<p style="color:var(--text-secondary); line-height:1.7;">' + escapeHTML(p.scoreReasons[0]) + '</p>';
-                }
-
+                if (p.scoreReasons?.length) html += '<p style="margin-top:10px;font-weight:900;">💬 评语</p><p style="color:var(--text-secondary);line-height:1.7;">' + escapeHTML(p.scoreReasons[0]) + '</p>';
                 if (p.improvementSuggestions?.length) {
-                    html += '<p style="margin-top:10px; font-weight:800;">💡 改进建议</p>';
-                    html += '<ul style="margin-left:18px; line-height:1.7;">';
-
-                    p.improvementSuggestions
-                        .filter(s => !String(s).startsWith('【优先改进】'))
-                        .forEach(s => {
-                            html += '<li style="font-size:0.92rem;">' + escapeHTML(s) + '</li>';
-                        });
-
+                    html += '<p style="margin-top:10px;font-weight:900;">💡 改进建议</p><ul style="margin-left:18px;line-height:1.7;">';
+                    p.improvementSuggestions.filter(s => !String(s).startsWith('【优先改进】')).forEach(s => html += '<li style="font-size:.92rem;">' + escapeHTML(s) + '</li>');
                     html += '</ul>';
                 }
-
                 html += '</div>';
-
                 return html;
             };
 
-            let html = '<h3 style="margin-bottom:16px; font-size:1.35rem; letter-spacing:-0.03em;">📊 对比结果</h3>';
-
-            html += '<div style="background:linear-gradient(135deg,var(--primary-light),rgba(124,58,237,.08)); padding:16px; border-radius:18px; margin-bottom:20px; font-weight:800; border:1px solid var(--border-color);">' +
-                escapeHTML(data.advantage || '暂无对比结论') +
-                '</div>';
-
-            html += '<div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">';
-            html += buildHTML(p1, '📷 照片1') + buildHTML(p2, '📷 照片2');
-            html += '</div>';
-
-            html += '<div style="max-width:540px; margin:20px auto; padding:18px; border-radius:24px; background:rgba(255,255,255,.36); border:1px solid var(--border-color);"><canvas id="compareRadarChart"></canvas></div>';
-
+            let html = '<h3 style="margin-bottom:16px;font-size:1.35rem;letter-spacing:-.04em;">📊 对比结果</h3>';
+            html += '<div style="background:rgba(214,163,84,.10);padding:16px;border-radius:20px;margin-bottom:20px;font-weight:900;border:1px solid var(--border-strong);">' + escapeHTML(data.advantage || '暂无对比结论') + '</div>';
+            html += '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;">' + buildHTML(p1, '📷 照片1') + buildHTML(p2, '📷 照片2') + '</div>';
+            html += '<div class="compare-chart-wrap"><canvas id="compareRadarChart"></canvas></div>';
             setHTML('compareResult', html);
 
-            const dimensions = ['清晰度', '噪点', '曝光', '色彩', '构图', '冲击力', '社会价值'];
-
-            const d1 = [
-                safeScore(p1.scoreDetails?.['清晰度评分']),
-                safeScore(p1.scoreDetails?.['噪点控制评分']),
-                safeScore(p1.scoreDetails?.['曝光控制评分']),
-                safeScore(p1.scoreDetails?.['色彩准确度评分']),
-                safeScore(p1.scoreDetails?.['构图水平评分']),
-                safeScore(p1.scoreDetails?.['冲击力评分']),
-                safeScore(p1.scoreDetails?.['社会价值评分'])
-            ];
-
-            const d2 = [
-                safeScore(p2.scoreDetails?.['清晰度评分']),
-                safeScore(p2.scoreDetails?.['噪点控制评分']),
-                safeScore(p2.scoreDetails?.['曝光控制评分']),
-                safeScore(p2.scoreDetails?.['色彩准确度评分']),
-                safeScore(p2.scoreDetails?.['构图水平评分']),
-                safeScore(p2.scoreDetails?.['冲击力评分']),
-                safeScore(p2.scoreDetails?.['社会价值评分'])
-            ];
-
+            const d1 = getDimensionArray(p1), d2 = getDimensionArray(p2);
             if (compareRadarChart) compareRadarChart.destroy();
-
-            const gridColor = dark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.10)';
+            const gridColor = light ? 'rgba(41,37,36,0.12)' : 'rgba(255,255,255,0.12)';
             const textColor = getChartTextColor();
 
             compareRadarChart = new Chart($('compareRadarChart').getContext('2d'), {
                 type: 'radar',
-                data: {
-                    labels: dimensions,
-                    datasets: [
-                        {
-                            label: '照片1',
-                            data: d1,
-                            borderColor: '#2563eb',
-                            backgroundColor: 'rgba(37,99,235,0.14)',
-                            pointBackgroundColor: '#2563eb'
-                        },
-                        {
-                            label: '照片2',
-                            data: d2,
-                            borderColor: '#f97316',
-                            backgroundColor: 'rgba(249,115,22,0.12)',
-                            pointBackgroundColor: '#f97316'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { labels: { color: textColor, font: { weight: '700' } } }
-                    },
-                    scales: {
-                        r: {
-                            min: 0,
-                            max: 100,
-                            ticks: { color: textColor },
-                            pointLabels: { color: textColor, font: { weight: '700' } },
-                            grid: { color: gridColor },
-                            angleLines: { color: gridColor }
-                        }
-                    }
-                }
+                data: { labels: DIMENSIONS.map(d => d.label), datasets: [
+                        { label: '照片1', data: d1, borderColor: '#d6a354', backgroundColor: 'rgba(214,163,84,0.16)', pointBackgroundColor: '#f2d49b' },
+                        { label: '照片2', data: d2, borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.12)', pointBackgroundColor: '#22d3ee' }
+                    ] },
+                options: chartRadarOptions('两张照片维度雷达对比', textColor, gridColor)
             });
         }
 
         window.addEventListener('beforeunload', () => {
             clearPreviewUrls(selected);
             clearPreviewUrls(selectedSelect);
-
             if (compareUrl1) URL.revokeObjectURL(compareUrl1);
             if (compareUrl2) URL.revokeObjectURL(compareUrl2);
         });
