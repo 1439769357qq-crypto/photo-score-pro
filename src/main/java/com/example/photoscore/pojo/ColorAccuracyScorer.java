@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -16,28 +15,24 @@ import java.util.List;
 public class ColorAccuracyScorer extends BaseScorer {
 
     @Override
-    public String getScorerName() {
-        return "色彩准确度评分";
-    }
-
+    public String getScorerName() { return "色彩准确度评分"; }
     @Override
-    public String getCategory() {
-        return "TECHNICAL";
-    }
-
+    public String getCategory() { return "TECHNICAL"; }
     @Override
-    public double getWeight() {
-        return 0.045;
-    }
+    public double getWeight() { return 0.045; }
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat hsv = new Mat();
+        Mat mat = null;
+        Mat hsv = null;
         Mat saturation = null;
+        List<Mat> channels = null;
+
         try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            hsv = new Mat();
             Imgproc.cvtColor(mat, hsv, Imgproc.COLOR_BGR2HSV);
-            List<Mat> channels = new ArrayList<>();
+            channels = new ArrayList<>();
             Core.split(hsv, channels);
             saturation = channels.get(1);
             MatOfDouble mean = new MatOfDouble();
@@ -45,9 +40,9 @@ public class ColorAccuracyScorer extends BaseScorer {
             double avgSat = mean.get(0, 0)[0] / 255.0;
             return normalizeSigmoid(avgSat, 0.35, 12.0);
         } finally {
-            mat.release();
-            hsv.release();
-            if (saturation != null) saturation.release();
+            safeRelease(saturation);
+            safeRelease(channels);
+            safeRelease(hsv, mat);
         }
     }
 

@@ -1,9 +1,9 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
@@ -11,186 +11,149 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 构图水平评分器
- * 参考PPA国际摄影大赛"Composition"标准
+ * 构图水平评分器 —— 性能优化版本
  * 
- * 评估维度：
- * - 三分法构图（兴趣点位置）
- * - 画面平衡感（视觉重心分布）
- * - 画面简洁度（边缘复杂度）
- * - 对称性（镜像相似度）
- * - 视觉引导性（线条方向）
- * 
- * @author PhotoScore Pro Team
+ * 优化点：
+ * 1. calculateVisualCenter: 使用 Imgproc.moments() 替代双重 for 循环像素遍历，O(1) 原生实现
+ * 2. evaluateSymmetry: 使用 Core.norm(diff, NORM_L1) 替代 Core.mean + 手动归一化，更简洁准确
  */
 @Component
 public class CompositionScorer extends BaseScorer {
 
     @Override
-    public String getScorerName() {
-        return "构图水平评分";
-    }
-
+    public String getScorerName() { return "构图水平评分"; }
     @Override
-    public String getCategory() {
-        return "AESTHETIC";
-    }
-
+    public String getCategory() { return "AESTHETIC"; }
     @Override
-    public double getWeight() {
-        return 0.140;
-    }
+    public double getWeight() { return 0.140; }
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        int width = mat.cols();
-        int height = mat.rows();
-        
-        // 1. 计算视觉重心
-        Point visualCenter = calculateVisualCenter(mat);
-        
-        // 2. 三分法构图评分
-        double thirdScore = evaluateRuleOfThirds(visualCenter, width, height);
-        
-        // 3. 画面简洁度评分（基于边缘密度）
-        double simplicityScore = evaluateSimplicity(mat);
-        
-        // 4. 对称性评分
-        double symmetryScore = evaluateSymmetry(mat);
-        
-        // 5. 画面平衡感评分
-        double balanceScore = evaluateBalance(mat, visualCenter, width, height);
-        
-        // 综合评分
-        double[] scores = {thirdScore, simplicityScore, symmetryScore, balanceScore};
-        double[] weights = {0.35, 0.25, 0.15, 0.25};
-        
-        return weightedAverage(scores, weights);
+        Mat mat = null;
+        try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            int width = mat.cols();
+            int height = mat.rows();
+
+            Point visualCenter = calculateVisualCenter(mat);
+            double thirdScore = evaluateRuleOfThirds(visualCenter, width, height);
+            double simplicityScore = evaluateSimplicity(mat);
+            double symmetryScore = evaluateSymmetry(mat);
+            double balanceScore = evaluateBalance(visualCenter, width, height);
+
+            double[] scores = {thirdScore, simplicityScore, symmetryScore, balanceScore};
+            double[] weights = {0.35, 0.25, 0.15, 0.25};
+            return weightedAverage(scores, weights);
+        } finally {
+            safeRelease(mat);
+        }
     }
 
     /**
-     * 计算视觉重心
+     * 计算视觉重心 —— 使用图像矩 Moments 替代双重循环遍历
+     * Imgproc.moments() 是 OpenCV 原生 C++ 实现，性能远高于 Java 层像素遍历
      */
     private Point calculateVisualCenter(Mat mat) {
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        
-        // 使用Sobel边缘检测计算边缘强度作为权重
-        Mat sobelX = new Mat();
-        Mat sobelY = new Mat();
-        Imgproc.Sobel(gray, sobelX, CvType.CV_64F, 1, 0);
-        Imgproc.Sobel(gray, sobelY, CvType.CV_64F, 0, 1);
-        
-        Mat magnitude = new Mat();
-        Core.magnitude(sobelX, sobelY, magnitude);
-        
-        double totalWeight = 0;
-        double weightedX = 0;
-        double weightedY = 0;
-        
-        for (int y = 0; y < magnitude.rows(); y++) {
-            for (int x = 0; x < magnitude.cols(); x++) {
-                double weight = magnitude.get(y, x)[0];
-                weightedX += x * weight;
-                weightedY += y * weight;
-                totalWeight += weight;
+        Mat gray = null;
+        Mat sobelX = null;
+        Mat sobelY = null;
+        Mat magnitude = null;
+        try {
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
+            sobelX = new Mat();
+            sobelY = new Mat();
+            Imgproc.Sobel(gray, sobelX, CvType.CV_64F, 1, 0);
+            Imgproc.Sobel(gray, sobelY, CvType.CV_64F, 0, 1);
+
+            magnitude = new Mat();
+            Core.magnitude(sobelX, sobelY, magnitude);
+
+            // 使用空间矩计算加权中心：m10/m00 = x̄, m01/m00 = ȳ
+            Moments moments = Imgproc.moments(magnitude);
+            if (moments.m00 == 0) {
+                return new Point(mat.cols() / 2.0, mat.rows() / 2.0);
             }
+            return new Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
+        } finally {
+            safeRelease(gray, sobelX, sobelY, magnitude);
         }
-        
-        gray.release();
-        sobelX.release();
-        sobelY.release();
-        magnitude.release();
-        
-        if (totalWeight == 0) {
-            return new Point(mat.cols() / 2.0, mat.rows() / 2.0);
-        }
-        return new Point(weightedX / totalWeight, weightedY / totalWeight);
     }
 
-    /**
-     * 三分法构图评分
-     */
     private double evaluateRuleOfThirds(Point center, int width, int height) {
-        // 四个三分点
         Point[] thirdPoints = {
             new Point(width / 3.0, height / 3.0),
             new Point(2.0 * width / 3.0, height / 3.0),
             new Point(width / 3.0, 2.0 * height / 3.0),
             new Point(2.0 * width / 3.0, 2.0 * height / 3.0)
         };
-        
+
         double minDistance = Double.MAX_VALUE;
         for (Point p : thirdPoints) {
-            double distance = Math.sqrt(
-                Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2)
-            );
+            double distance = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2));
             minDistance = Math.min(minDistance, distance);
         }
-        
+
         double maxDistance = Math.sqrt(width * width + height * height) / 2.5;
         return 1.0 - Math.min(1.0, minDistance / maxDistance);
     }
 
-    /**
-     * 画面简洁度评分（边缘密度越低越简洁）
-     */
     private double evaluateSimplicity(Mat mat) {
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        
-        Mat edges = new Mat();
-        Imgproc.Canny(gray, edges, 50, 150);
-        
-        int edgePixels = Core.countNonZero(edges);
-        double edgeDensity = (double) edgePixels / (mat.cols() * mat.rows());
-        
-        gray.release();
-        edges.release();
-        
-        return 1.0 - normalizeLinear(edgeDensity, 0.01, 0.15);
+        Mat gray = null;
+        Mat edges = null;
+        try {
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+            edges = new Mat();
+            Imgproc.Canny(gray, edges, 50, 150);
+            int edgePixels = Core.countNonZero(edges);
+            double edgeDensity = (double) edgePixels / (mat.cols() * mat.rows());
+            return 1.0 - normalizeLinear(edgeDensity, 0.01, 0.15);
+        } finally {
+            safeRelease(gray, edges);
+        }
     }
 
     /**
-     * 对称性评分
+     * 对称性评分 —— 使用 Core.norm 替代 Core.mean
+     * Core.norm(diff, NORM_L1) 直接返回所有像素绝对差之和，无需手动遍历
      */
     private double evaluateSymmetry(Mat mat) {
         int width = mat.cols();
         int height = mat.rows();
         int halfWidth = width / 2;
-        
-        Mat leftHalf = new Mat(mat, new Rect(0, 0, halfWidth, height));
-        Mat rightHalf = new Mat(mat, new Rect(width - halfWidth, 0, halfWidth, height));
-        
-        Mat rightFlipped = new Mat();
-        Core.flip(rightHalf, rightFlipped, 1);
-        
-        Mat diff = new Mat();
-        Core.absdiff(leftHalf, rightFlipped, diff);
-        
-        Scalar meanDiff = Core.mean(diff);
-        double similarity = 1.0 - (meanDiff.val[0] + meanDiff.val[1] + meanDiff.val[2]) / (255 * 3);
-        
-        leftHalf.release();
-        rightHalf.release();
-        rightFlipped.release();
-        diff.release();
-        
-        return similarity;
+
+        Mat rightFlipped = null;
+        Mat diff = null;
+        try {
+            Mat leftHalf = new Mat(mat, new Rect(0, 0, halfWidth, height));
+            Mat rightHalf = new Mat(mat, new Rect(width - halfWidth, 0, halfWidth, height));
+            rightFlipped = new Mat();
+            Core.flip(rightHalf, rightFlipped, 1);
+            diff = new Mat();
+            Core.absdiff(leftHalf, rightFlipped, diff);
+
+            // NORM_L1 = 所有像素绝对值之和
+            double normL1 = Core.norm(diff, Core.NORM_L1);
+            int channels = diff.channels();
+            long totalPixels = (long) diff.rows() * diff.cols() * channels;
+            double maxL1 = totalPixels * 255.0;
+
+            // 避免除零
+            if (maxL1 == 0) return 1.0;
+
+            double normalizedDiff = normL1 / maxL1;
+            return 1.0 - normalizedDiff;
+        } finally {
+            safeRelease(rightFlipped, diff);
+        }
     }
 
-    /**
-     * 画面平衡感评分
-     */
-    private double evaluateBalance(Mat mat, Point center, int width, int height) {
+    private double evaluateBalance(Point center, int width, int height) {
         double centerX = width / 2.0;
         double centerY = height / 2.0;
-        
-        double deviation = Math.sqrt(
-            Math.pow(center.x - centerX, 2) + Math.pow(center.y - centerY, 2)
-        );
-        
+        double deviation = Math.sqrt(Math.pow(center.x - centerX, 2) + Math.pow(center.y - centerY, 2));
         double maxDeviation = Math.min(width, height) / 2.0;
         return 1.0 - Math.min(1.0, deviation / maxDeviation * 0.5);
     }
@@ -209,6 +172,7 @@ public class CompositionScorer extends BaseScorer {
             return "构图混乱，主体淹没在环境中，建议重新构思画面，明确拍摄意图。";
         }
     }
+
     @Override
     protected List<String> generateSuggestions(double rawScore, BufferedImage image) {
         List<String> suggestions = new ArrayList<>();
@@ -216,7 +180,7 @@ public class CompositionScorer extends BaseScorer {
             suggestions.add("构图很讲究，主体突出，画面平衡。可以多尝试一些创意角度，比如低角度仰拍。");
         } else if (rawScore >= 0.70) {
             suggestions.add("构图不错。稍微注意一下背景有没有多余的东西（比如路人、垃圾桶），可以换个角度避开。");
-            suggestions.add("试着打开手机相机设置里的“网格线”或“参考线”，把想突出的东西放在交点或线上。");
+            suggestions.add("试着打开手机相机设置里的\"网格线\"或\"参考线\"，把想突出的东西放在交点或线上。");
         } else if (rawScore >= 0.55) {
             suggestions.add("主体不够突出。往前走两步，或者蹲下来拍，让拍摄对象在画面里占得更大一些。");
             suggestions.add("背景有点杂乱。换个方向，或者用手机的人像模式把背景虚化掉。");

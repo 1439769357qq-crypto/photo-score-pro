@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -24,33 +23,44 @@ public class ImpactScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Mat edges = new Mat();
-        Mat hsv = new Mat();
+        Mat mat = null;
+        Mat gray = null;
+        Mat edges = null;
+        Mat hsv = null;
         Mat saturation = null;
+        List<Mat> channels = null;
+
         try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
             Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
             MatOfDouble stdDev = new MatOfDouble();
             Core.meanStdDev(gray, new MatOfDouble(), stdDev);
             double contrast = stdDev.get(0, 0)[0] / 128.0;
             double contrastScore = normalizeSigmoid(contrast, 0.4, 10.0);
+
+            edges = new Mat();
             Imgproc.Canny(gray, edges, 50, 150);
             int edgePixels = Core.countNonZero(edges);
             double edgeDensity = (double) edgePixels / (mat.cols() * mat.rows());
             double edgeScore = normalizeSigmoid(edgeDensity, 0.04, 40.0);
+
+            hsv = new Mat();
             Imgproc.cvtColor(mat, hsv, Imgproc.COLOR_BGR2HSV);
-            java.util.List<Mat> channels = new ArrayList<>();
+            channels = new ArrayList<>();
             Core.split(hsv, channels);
             saturation = channels.get(1);
             MatOfDouble meanSat = new MatOfDouble();
             Core.meanStdDev(saturation, meanSat, new MatOfDouble());
             double avgSaturation = meanSat.get(0, 0)[0] / 255.0;
             double saturationScore = normalizeSigmoid(avgSaturation, 0.3, 12.0);
+
             return contrastScore * 0.35 + edgeScore * 0.35 + saturationScore * 0.30;
         } finally {
-            mat.release(); gray.release(); edges.release(); hsv.release();
-            if (saturation != null) saturation.release();
+            safeRelease(saturation);
+            safeRelease(channels);
+            safeRelease(edges, gray, hsv, mat);
         }
     }
 

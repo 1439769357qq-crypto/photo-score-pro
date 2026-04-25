@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import org.springframework.stereotype.Component;
 import java.awt.image.BufferedImage;
 

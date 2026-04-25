@@ -8,12 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Disruptor事件处理器
- * 这个类实现了 EventHandler，直接被 Disruptor 调度，打破了循环依赖
  */
 @Slf4j
 @Component
@@ -24,49 +24,52 @@ public class DisruptorEventProcessor implements EventHandler<PhotoScoreEvent> {
 
     @Override
     public void onEvent(PhotoScoreEvent event, long sequence, boolean endOfBatch) {
-        log.debug("Disruptor 处理评分事件: fileName={}, sequence={}",
-                event.getFile().getOriginalFilename(), sequence);
-
-        PhotoScoreResponse response;
+        String fileName = "unknown";
         try {
-            // 调用同步评分方法
+            if (event == null || event.getFile() == null) {
+                log.warn("Disruptor 收到空事件或空文件, sequence={}", sequence);
+                return;
+            }
+            fileName = event.getFile().getOriginalFilename();
+            log.debug("Disruptor 处理评分事件: fileName={}, sequence={}", fileName, sequence);
+
             CompositeScoreResult result = photoScoreService.performFullScoring(
                     event.getFile(),
                     event.getClientIp(),
                     event.getUserAgent()
             );
 
-            // 构建响应
             Map<String, BigDecimal> scoreDetails = new HashMap<>();
             if (result.getScoringResults() != null) {
                 result.getScoringResults().forEach(r ->
                         scoreDetails.put(r.getScorerName(), r.getScore()));
             }
 
-            response = PhotoScoreResponse.builder()
-                    .fileName(event.getFile().getOriginalFilename())
+            PhotoScoreResponse response = PhotoScoreResponse.builder()
+                    .fileName(fileName)
                     .fileSize(event.getFile().getSize())
                     .dimension(result.getImageWidth() + "x" + result.getImageHeight())
                     .qualityScore(result.getTotalScore())
                     .isPass(result.getTotalScore().compareTo(new BigDecimal("60")) >= 0)
                     .scoreDetails(scoreDetails)
                     .scoreReasons(result.getComments())
+                    .improvementSuggestions(result.getSuggestions())
                     .isDuplicate(false)
                     .build();
+
+            event.getResultFuture().complete(response);
 
         } catch (Exception e) {
-            log.error("Disruptor 评分处理失败: fileName={}",
-                    event.getFile().getOriginalFilename(), e);
-            response = PhotoScoreResponse.builder()
-                    .fileName(event.getFile().getOriginalFilename())
+            log.error("Disruptor 评分处理失败: fileName={}", fileName, e);
+            PhotoScoreResponse errorResponse = PhotoScoreResponse.builder()
+                    .fileName(fileName)
                     .qualityScore(BigDecimal.ZERO)
                     .isPass(false)
-                    .scoreReasons(java.util.Collections.singletonList("评分失败: " + e.getMessage()))
+                    .scoreReasons(Collections.singletonList("评分失败: " + e.getMessage()))
+                    .improvementSuggestions(Collections.emptyList())
                     .isDuplicate(false)
                     .build();
+            event.getResultFuture().complete(errorResponse);
         }
-
-        // 将结果传递给异步 Future，调用方解除阻塞
-        event.getResultFuture().complete(response);
     }
 }

@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -23,18 +22,21 @@ public class SocialValueScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Mat edges = new Mat();
+        Mat mat = null;
+        Mat gray = null;
+        Mat edges = null;
         try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
             Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+            edges = new Mat();
             Imgproc.Canny(gray, edges, 50, 150);
             int edgePixels = Core.countNonZero(edges);
             double edgeDensity = (double) edgePixels / (mat.cols() * mat.rows());
             double baseScore = normalizeLinear(edgeDensity, 0.02, 0.10);
             return Math.min(0.85, baseScore * 1.2);
         } finally {
-            mat.release(); gray.release(); edges.release();
+            safeRelease(edges, gray, mat);
         }
     }
 

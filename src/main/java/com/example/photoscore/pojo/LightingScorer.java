@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -18,16 +17,21 @@ public class LightingScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        MatOfDouble mean = new MatOfDouble(), stddev = new MatOfDouble();
-        Core.meanStdDev(gray, mean, stddev);
-        double avgBright = mean.get(0,0)[0];
-        double idealDiff = 1.0 - Math.abs(avgBright - 128) / 128.0;
-        double contrast = stddev.get(0,0)[0] / 128.0;
-        gray.release(); mat.release();
-        return (idealDiff * 0.6 + normalizeSigmoid(contrast, 0.3, 10.0) * 0.4);
+        Mat mat = null;
+        Mat gray = null;
+        try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+            MatOfDouble mean = new MatOfDouble(), stddev = new MatOfDouble();
+            Core.meanStdDev(gray, mean, stddev);
+            double avgBright = mean.get(0,0)[0];
+            double idealDiff = 1.0 - Math.abs(avgBright - 128) / 128.0;
+            double contrast = stddev.get(0,0)[0] / 128.0;
+            return (idealDiff * 0.6 + normalizeSigmoid(contrast, 0.3, 10.0) * 0.4);
+        } finally {
+            safeRelease(gray, mat);
+        }
     }
 
     @Override protected String generateComment(double rawScore, BufferedImage image) {

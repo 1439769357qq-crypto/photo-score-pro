@@ -14,7 +14,7 @@ import java.util.Map;
 public class CompareResult {
     private PhotoScoreResponse photo1;
     private PhotoScoreResponse photo2;
-    private BigDecimal scoreDiff;                     // 总分差值（photo1 - photo2）
-    private Map<String, BigDecimal> dimensionDiff;    // 各维度分数差值
-    private String advantage;                         // 优势分析文本
+    private BigDecimal scoreDiff;
+    private Map<String, BigDecimal> dimensionDiff;
+    private String advantage;
 }

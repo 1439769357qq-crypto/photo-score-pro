@@ -19,7 +19,7 @@ spring:
       connection-timeout: 30000 # 等待连接的超时时间
   servlet:
     multipart:
-      max-file-size: 50MB        # 放宽单文件大小限制
+      max-file-size: 100MB        # 放宽单文件大小限制
       max-request-size: 500MB    # 放宽单次请求总大小限制
       file-size-threshold: 0     # 核心：所有文件直接写入磁盘，不占用内存
       resolve-lazily: false      # 立即解析，不要延迟

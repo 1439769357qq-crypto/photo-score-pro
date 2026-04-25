@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
@@ -10,18 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * 曝光控制评分器
- * 参考荷赛奖"技术完美"标准中的曝光要求
- * 
- * 评估维度：
- * - 过曝程度（高光溢出比例）
- * - 欠曝程度（阴影死黑比例）
- * - 曝光均匀度（区域亮度方差）
- * 
- * @author PhotoScore Pro Team
  */
 @Component
 public class ExposureScorer extends BaseScorer {
@@ -31,72 +23,58 @@ public class ExposureScorer extends BaseScorer {
     private static final double UNDEREXPOSURE_THRESHOLD = 10;
 
     @Override
-    public String getScorerName() {
-        return "曝光控制评分";
-    }
-
+    public String getScorerName() { return "曝光控制评分"; }
     @Override
-    public String getCategory() {
-        return "TECHNICAL";
-    }
-
+    public String getCategory() { return "TECHNICAL"; }
     @Override
-    public double getWeight() {
-        return 0.085;
-    }
+    public double getWeight() { return 0.085; }
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        
-        // 计算直方图
-        MatOfInt histSize = new MatOfInt(256);
-        MatOfFloat histRange = new MatOfFloat(0, 256);
-        Mat hist = new Mat();
-        Imgproc.calcHist(java.util.Collections.singletonList(gray), 
-            new MatOfInt(0), new Mat(), hist, histSize, histRange, false);
-        
-        // 统计过曝和欠曝像素比例
-        double totalPixels = gray.cols() * gray.rows();
-        double overexposedPixels = 0;
-        double underexposedPixels = 0;
-        double sumBrightness = 0;
-        
-        for (int i = 0; i < 256; i++) {
-            double count = hist.get(i, 0)[0];
-            sumBrightness += i * count;
-            if (i > OVEREXPOSURE_THRESHOLD) {
-                overexposedPixels += count;
+        Mat mat = null;
+        Mat gray = null;
+        Mat hist = null;
+
+        try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
+            MatOfInt histSize = new MatOfInt(256);
+            MatOfFloat histRange = new MatOfFloat(0, 256);
+            hist = new Mat();
+            Imgproc.calcHist(Collections.singletonList(gray), new MatOfInt(0), new Mat(), hist, histSize, histRange, false);
+
+            double totalPixels = gray.cols() * gray.rows();
+            double overexposedPixels = 0;
+            double underexposedPixels = 0;
+            double sumBrightness = 0;
+
+            for (int i = 0; i < 256; i++) {
+                double count = hist.get(i, 0)[0];
+                sumBrightness += i * count;
+                if (i > OVEREXPOSURE_THRESHOLD) overexposedPixels += count;
+                if (i < UNDEREXPOSURE_THRESHOLD) underexposedPixels += count;
             }
-            if (i < UNDEREXPOSURE_THRESHOLD) {
-                underexposedPixels += count;
-            }
+
+            double overRatio = overexposedPixels / totalPixels;
+            double underRatio = underexposedPixels / totalPixels;
+            double avgBrightness = sumBrightness / totalPixels;
+
+            double brightnessDeviation = Math.abs(avgBrightness - IDEAL_MEAN_BRIGHTNESS) / 128.0;
+            double brightnessScore = 1.0 - brightnessDeviation;
+            double overPenalty = Math.min(1.0, overRatio * 3);
+            double underPenalty = Math.min(1.0, underRatio * 3);
+
+            double exposureScore = brightnessScore * (1.0 - overPenalty * 0.5 - underPenalty * 0.3);
+            return Math.max(0.0, Math.min(1.0, exposureScore));
+        } finally {
+            safeRelease(hist, gray, mat);
         }
-        
-        double overRatio = overexposedPixels / totalPixels;
-        double underRatio = underexposedPixels / totalPixels;
-        double avgBrightness = sumBrightness / totalPixels;
-        
-        // 亮度偏离理想值的程度
-        double brightnessDeviation = Math.abs(avgBrightness - IDEAL_MEAN_BRIGHTNESS) / 128.0;
-        double brightnessScore = 1.0 - brightnessDeviation;
-        
-        // 过曝和欠曝惩罚
-        double overPenalty = Math.min(1.0, overRatio * 3);
-        double underPenalty = Math.min(1.0, underRatio * 3);
-        
-        double exposureScore = brightnessScore * (1.0 - overPenalty * 0.5 - underPenalty * 0.3);
-        
-        gray.release();
-        
-        return Math.max(0.0, Math.min(1.0, exposureScore));
     }
 
     @Override
     protected String generateComment(double rawScore, BufferedImage image) {
-        // 需要额外计算高光/阴影溢出区域（如果之前已计算）
         if (rawScore >= 0.85) {
             return "曝光精准，高光与阴影区域细节均保留完整。";
         } else if (rawScore >= 0.70) {

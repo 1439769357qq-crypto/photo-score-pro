@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -24,22 +23,28 @@ public class MomentScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Mat edges = new Mat();
+        Mat mat = null;
+        Mat gray = null;
+        Mat edges = null;
         try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
             Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
             MatOfDouble stdDev = new MatOfDouble();
             Core.meanStdDev(gray, new MatOfDouble(), stdDev);
             double contrast = stdDev.get(0, 0)[0] / 128.0;
+
+            edges = new Mat();
             Imgproc.Canny(gray, edges, 50, 150);
             int edgePixels = Core.countNonZero(edges);
             double edgeDensity = (double) edgePixels / (mat.cols() * mat.rows());
+
             double contrastScore = normalizeSigmoid(contrast, 0.4, 8.0);
             double edgeScore = normalizeSigmoid(edgeDensity, 0.03, 50.0);
             return (contrastScore * 0.4 + edgeScore * 0.6);
         } finally {
-            mat.release(); gray.release(); edges.release();
+            safeRelease(edges, gray, mat);
         }
     }
 

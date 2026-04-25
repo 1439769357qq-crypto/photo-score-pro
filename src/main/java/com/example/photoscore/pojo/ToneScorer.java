@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -24,15 +23,19 @@ public class ToneScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        MatOfDouble stdDev = new MatOfDouble();
-        Core.meanStdDev(gray, new MatOfDouble(), stdDev);
-        double contrast = stdDev.get(0, 0)[0] / 128.0;
-        double contrastScore = normalizeSigmoid(contrast, 0.4, 8.0);
-        gray.release();
-        return contrastScore;
+        Mat mat = null;
+        Mat gray = null;
+        try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+            MatOfDouble stdDev = new MatOfDouble();
+            Core.meanStdDev(gray, new MatOfDouble(), stdDev);
+            double contrast = stdDev.get(0, 0)[0] / 128.0;
+            return normalizeSigmoid(contrast, 0.4, 8.0);
+        } finally {
+            safeRelease(gray, mat);
+        }
     }
 
     @Override

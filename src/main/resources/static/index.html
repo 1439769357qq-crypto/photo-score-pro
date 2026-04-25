@@ -2035,26 +2035,54 @@
         $('selectCompare1Btn').addEventListener('click', () => $('compareFile1').click());
         $('selectCompare2Btn').addEventListener('click', () => $('compareFile2').click());
 
-        $('compareFile1').addEventListener('change', e => {
+        $('compareFile1').addEventListener('change', async e => {
             const file = e.target.files[0];
             if (!file) return;
-            if (compareUrl1) URL.revokeObjectURL(compareUrl1);
-            f1 = file;
-            compareUrl1 = URL.createObjectURL(file);
-            $('comparePreview1').src = compareUrl1;
-            show('comparePreview1');
-            $('compareBtn').disabled = !(f1 && f2);
+
+            setLoading(true);
+            try {
+                if (compareUrl1) URL.revokeObjectURL(compareUrl1);
+
+                // 照片对比也进行前端压缩，避免大图上传慢或后端处理失败
+                f1 = await compress(file);
+                compareUrl1 = URL.createObjectURL(f1);
+
+                $('comparePreview1').src = compareUrl1;
+                show('comparePreview1');
+                $('compareBtn').disabled = !(f1 && f2);
+            } catch (err) {
+                console.error(err);
+                alert('照片1压缩失败，请换一张照片重试');
+                f1 = null;
+                $('compareBtn').disabled = true;
+            } finally {
+                setLoading(false);
+            }
         });
 
-        $('compareFile2').addEventListener('change', e => {
+        $('compareFile2').addEventListener('change', async e => {
             const file = e.target.files[0];
             if (!file) return;
-            if (compareUrl2) URL.revokeObjectURL(compareUrl2);
-            f2 = file;
-            compareUrl2 = URL.createObjectURL(file);
-            $('comparePreview2').src = compareUrl2;
-            show('comparePreview2');
-            $('compareBtn').disabled = !(f1 && f2);
+
+            setLoading(true);
+            try {
+                if (compareUrl2) URL.revokeObjectURL(compareUrl2);
+
+                // 照片对比也进行前端压缩，避免大图上传慢或后端处理失败
+                f2 = await compress(file);
+                compareUrl2 = URL.createObjectURL(f2);
+
+                $('comparePreview2').src = compareUrl2;
+                show('comparePreview2');
+                $('compareBtn').disabled = !(f1 && f2);
+            } catch (err) {
+                console.error(err);
+                alert('照片2压缩失败，请换一张照片重试');
+                f2 = null;
+                $('compareBtn').disabled = true;
+            } finally {
+                setLoading(false);
+            }
         });
 
         $('compareBtn').addEventListener('click', async () => {

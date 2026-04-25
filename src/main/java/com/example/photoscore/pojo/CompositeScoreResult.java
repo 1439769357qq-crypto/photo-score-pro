@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompositeScoreResult {
     private BigDecimal totalScore;
     private BigDecimal technicalScore;

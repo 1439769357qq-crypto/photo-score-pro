@@ -1,6 +1,5 @@
 package com.example.photoscore.pojo;
 
-
 import com.example.photoscore.util.OpenCVUtil;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -29,29 +28,42 @@ public class NoiseScorer extends BaseScorer {
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        int width = gray.cols();
-        int height = gray.rows();
-        double totalVariance = 0;
-        int blockCount = 0;
-        for (int y = 0; y < height - BLOCK_SIZE; y += BLOCK_SIZE) {
-            for (int x = 0; x < width - BLOCK_SIZE; x += BLOCK_SIZE) {
-                Rect roi = new Rect(x, y, BLOCK_SIZE, BLOCK_SIZE);
-                Mat block = new Mat(gray, roi);
-                MatOfDouble mean = new MatOfDouble();
-                MatOfDouble stdDev = new MatOfDouble();
-                Core.meanStdDev(block, mean, stdDev);
-                totalVariance += Math.pow(stdDev.get(0, 0)[0], 2);
-                blockCount++;
+        Mat mat = null;
+        Mat gray = null;
+        try {
+            mat = OpenCVUtil.bufferedImageToMat(image);
+            gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
+            int width = gray.cols();
+            int height = gray.rows();
+            double totalVariance = 0;
+            int blockCount = 0;
+
+            for (int y = 0; y < height - BLOCK_SIZE; y += BLOCK_SIZE) {
+                for (int x = 0; x < width - BLOCK_SIZE; x += BLOCK_SIZE) {
+                    Rect roi = new Rect(x, y, BLOCK_SIZE, BLOCK_SIZE);
+                    Mat block = null;
+                    try {
+                        block = new Mat(gray, roi);
+                        MatOfDouble mean = new MatOfDouble();
+                        MatOfDouble stdDev = new MatOfDouble();
+                        Core.meanStdDev(block, mean, stdDev);
+                        totalVariance += Math.pow(stdDev.get(0, 0)[0], 2);
+                        blockCount++;
+                    } finally {
+                        safeRelease(block);
+                    }
+                }
             }
+
+            double avgVariance = blockCount > 0 ? totalVariance / blockCount : 0;
+            double noiseLevel = Math.sqrt(avgVariance);
+            double noiseScore = 1.0 - normalizeSigmoid(noiseLevel, NOISE_MIDPOINT, NOISE_STEEPNESS);
+            return Math.max(0.0, Math.min(1.0, noiseScore));
+        } finally {
+            safeRelease(gray, mat);
         }
-        double avgVariance = blockCount > 0 ? totalVariance / blockCount : 0;
-        double noiseLevel = Math.sqrt(avgVariance);
-        double noiseScore = 1.0 - normalizeSigmoid(noiseLevel, NOISE_MIDPOINT, NOISE_STEEPNESS);
-        gray.release();
-        return Math.max(0.0, Math.min(1.0, noiseScore));
     }
 
     @Override

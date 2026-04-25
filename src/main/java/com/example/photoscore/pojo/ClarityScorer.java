@@ -11,15 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 清晰度评分器
- * 参考荷赛奖"技术完美"标准中的清晰度要求
- * 
- * 评估维度：
- * - 整体清晰度（拉普拉斯方差）
- * - 边缘锐度（Sobel梯度）
- * - 细节丰富度（高频分量）
- * 
- * @author PhotoScore Pro Team
+ * 清晰度评分器 —— AutoMat 版本
+ * 演示 try-with-resources 自动释放 OpenCV 资源
  */
 @Component
 public class ClarityScorer extends BaseScorer {
@@ -30,61 +23,42 @@ public class ClarityScorer extends BaseScorer {
     private static final double SOBEL_STEEPNESS = 0.05;
 
     @Override
-    public String getScorerName() {
-        return "清晰度评分";
-    }
-
+    public String getScorerName() { return "清晰度评分"; }
     @Override
-    public String getCategory() {
-        return "TECHNICAL";
-    }
-
+    public String getCategory() { return "TECHNICAL"; }
     @Override
-    public double getWeight() {
-        return 0.055;
-    }
+    public double getWeight() { return 0.055; }
 
     @Override
     protected double calculateRawScore(BufferedImage image) {
-        Mat mat = OpenCVUtil.bufferedImageToMat(image);
-        
-        // 1. 拉普拉斯方差（整体清晰度）
-        Mat gray = new Mat();
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
-        
-        Mat laplacian = new Mat();
-        Imgproc.Laplacian(gray, laplacian, CvType.CV_64F);
-        
-        MatOfDouble mean = new MatOfDouble();
-        MatOfDouble stdDev = new MatOfDouble();
-        Core.meanStdDev(laplacian, mean, stdDev);
-        
-        double laplacianVar = Math.pow(stdDev.get(0, 0)[0], 2);
-        double laplacianScore = normalizeSigmoid(laplacianVar, LAPLACIAN_MIDPOINT, LAPLACIAN_STEEPNESS);
-        
-        // 2. Sobel梯度（边缘锐度）
-        Mat sobelX = new Mat();
-        Mat sobelY = new Mat();
-        Imgproc.Sobel(gray, sobelX, CvType.CV_64F, 1, 0);
-        Imgproc.Sobel(gray, sobelY, CvType.CV_64F, 0, 1);
-        
-        Mat sobelMagnitude = new Mat();
-        Core.magnitude(sobelX, sobelY, sobelMagnitude);
-        
-        Scalar meanSobel = Core.mean(sobelMagnitude);
-        double sobelScore = normalizeSigmoid(meanSobel.val[0], SOBEL_MIDPOINT, SOBEL_STEEPNESS);
-        
-        // 综合评分（拉普拉斯权重0.6，Sobel权重0.4）
-        double finalScore = laplacianScore * 0.6 + sobelScore * 0.4;
-        
-        // 释放资源
-        gray.release();
-        laplacian.release();
-        sobelX.release();
-        sobelY.release();
-        sobelMagnitude.release();
-        
-        return finalScore;
+        // try-with-resources 确保所有 Mat 在结束时自动释放，无需 finally 块
+        try (AutoMat mat = AutoMat.of(OpenCVUtil.bufferedImageToMat(image));
+             AutoMat gray = AutoMat.empty();
+             AutoMat laplacian = AutoMat.empty();
+             AutoMat sobelX = AutoMat.empty();
+             AutoMat sobelY = AutoMat.empty();
+             AutoMat sobelMagnitude = AutoMat.empty()) {
+
+            Imgproc.cvtColor(mat.get(), gray.get(), Imgproc.COLOR_BGR2GRAY);
+            Imgproc.Laplacian(gray.get(), laplacian.get(), CvType.CV_64F);
+
+            MatOfDouble mean = new MatOfDouble();
+            MatOfDouble stdDev = new MatOfDouble();
+            Core.meanStdDev(laplacian.get(), mean, stdDev);
+
+            double laplacianVar = Math.pow(stdDev.get(0, 0)[0], 2);
+            double laplacianScore = normalizeSigmoid(laplacianVar, LAPLACIAN_MIDPOINT, LAPLACIAN_STEEPNESS);
+
+            Imgproc.Sobel(gray.get(), sobelX.get(), CvType.CV_64F, 1, 0);
+            Imgproc.Sobel(gray.get(), sobelY.get(), CvType.CV_64F, 0, 1);
+            Core.magnitude(sobelX.get(), sobelY.get(), sobelMagnitude.get());
+
+            Scalar meanSobel = Core.mean(sobelMagnitude.get());
+            double sobelScore = normalizeSigmoid(meanSobel.val[0], SOBEL_MIDPOINT, SOBEL_STEEPNESS);
+
+            return laplacianScore * 0.6 + sobelScore * 0.4;
+        }
+        // MatOfDouble 对象很小，由 JVM GC 回收即可；若追求极致可再套 try-finally
     }
 
     @Override
