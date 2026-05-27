@@ -1,0 +1,130 @@
+server:
+  port: ${PORT:8080}
+
+
+spring:
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: false
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+  main:
+    allow-circular-references: true
+  application:
+    name: photo-score-pro
+  datasource:
+    # ⬇️ 把 url、username、password 替换成 Aiven 控制台给你的
+    url: jdbc:mysql://photoscore-photoscore.c.aivencloud.com:16346/defaultdb?sslMode=REQUIRED&serverTimezone=Asia/Shanghai&characterEncoding=utf-8   # 例如 jdbc:mysql://photo-score-db-xxx.aivencloud.com:3306/defaultdb
+    username: avnadmin                    # 例如 avnadmin
+    password: ${AIVEN_SERVICE_PASSWORD}    # Aiven 给你的密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 500MB
+      file-size-threshold: 0
+      resolve-lazily: false
+
+doubao:
+  vision:
+    enabled: ${DOUBAO_VISION_ENABLED:false}
+    api-key: ${DOUBAO_API_KEY:}
+    base-url: ${DOUBAO_BASE_URL:https://ark.cn-beijing.volces.com/api/v3/chat/completions}
+    model: ${DOUBAO_MODEL:}
+    timeout-seconds: ${DOUBAO_TIMEOUT_SECONDS:60}
+    temperature: ${DOUBAO_TEMPERATURE:0.2}
+    max-image-size: ${DOUBAO_VISION_MAX_IMAGE_SIZE:768}
+    max-tokens: ${DOUBAO_MAX_TOKENS:900}
+
+auth:
+  jwt:
+    secret: ${AUTH_JWT_SECRET:PhotoScorePro_2026_Login_JWT_Secret_9xKp72LmQw38VzTn}
+    expire-hours: ${AUTH_JWT_EXPIRE_HOURS:48}
+
+  email:
+    code-expire-minutes: ${EMAIL_CODE_EXPIRE_MINUTES:5}
+    resend-interval-seconds: ${EMAIL_RESEND_INTERVAL_SECONDS:60}
+
+  wechat:
+    enabled: ${WECHAT_LOGIN_ENABLED:false}
+    platform: ${WECHAT_PLATFORM:mp}
+    app-id: ${WECHAT_APP_ID:}
+    app-secret: ${WECHAT_APP_SECRET:}
+
+    # 微信公众平台网页授权回调地址
+    redirect-uri: ${WECHAT_REDIRECT_URI:https://photo-score.onrender.com/api/auth/wechat/mp/callback}
+
+    # snsapi_base 只拿 openid；snsapi_userinfo 可拿头像昵称
+    scope: ${WECHAT_OAUTH_SCOPE:snsapi_userinfo}
+
+    # 登录页地址
+    frontend-login-url: ${WECHAT_FRONTEND_LOGIN_URL:https://photo-score.onrender.com/login.html}
+
+    scene-expire-minutes: ${WECHAT_SCENE_EXPIRE_MINUTES:5}
+
+    # 微信测试号接口配置 Token
+    verify-token: ${WECHAT_VERIFY_TOKEN:PhotoScoreWechatToken2026}
+
+sms:
+  aliyun:
+    enabled: true
+    # fixed = 本地固定验证码模式，开发测试用
+    # console = 控制台打印验证码模式
+    # short-auth = 阿里云短认证模式，不使用短信签名
+    mode: ${SMS_MODE:short-auth}
+    fixed-code: ${SMS_FIXED_CODE:123456}
+    access-key-id: ${SMS_ALIYUN_ACCESS_KEY_ID:}
+    access-key-secret: ${SMS_ALIYUN_ACCESS_KEY_SECRET:}
+    endpoint: dypnsapi.aliyuncs.com
+    region-id: cn-shanghai
+    api-version: 2017-05-25
+    send-action: SendSmsVerifyCode
+    verify-action: VerifySmsCode
+    sign-name: ${SMS_ALIYUN_SIGN_NAME:}
+    template-code: ${SMS_ALIYUN_TEMPLATE_CODE:}
+    code-expire-minutes: ${SMS_CODE_EXPIRE_MINUTES:5}
+    resend-interval-seconds: ${SMS_RESEND_INTERVAL_SECONDS:60}
+
+deepseek:
+  enabled: ${DEEPSEEK_ENABLED:false}
+  api-key: ${DEEPSEEK_API_KEY:}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/chat/completions}
+  model: ${DEEPSEEK_MODEL:deepseek-v4-pro}
+  timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:60}
+  max-tokens: ${DEEPSEEK_MAX_TOKENS:2200}
+  temperature: ${DEEPSEEK_TEMPERATURE:0.2}
+
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+
+photoscore:
+  upload:
+    path: /tmp/photo-uploads
+  pass-line: 60
+  nima:
+    enabled: true
+    model-path: src/main/resources/models/
+  disruptor:
+    ring-buffer-size: 1024
+    worker-threads: 4

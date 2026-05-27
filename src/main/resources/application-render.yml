@@ -1,0 +1,32 @@
+mail-api:
+  provider: ${MAIL_API_PROVIDER:keplars}
+
+  from-name: ${MAIL_FROM_NAME:PhotoScore Pro}
+  from-email: ${MAIL_FROM_EMAIL:}
+
+  keplars:
+    api-key: ${KEPLARS_API_KEY:}
+    api-url: ${KEPLARS_EMAIL_API_URL:}
+    auth-header-name: ${KEPLARS_AUTH_HEADER_NAME:Authorization}
+    auth-header-prefix: ${KEPLARS_AUTH_HEADER_PREFIX:Bearer}
+
+
+render-sms:
+  enabled: ${RENDER_SMS_ENABLED:true}
+
+  # guoyang = 你购买的这个短信验证码服务
+  # console = 只打印验证码到 Render 日志
+  # fixed = 固定验证码
+  provider: ${RENDER_SMS_PROVIDER:guoyang}
+
+  fixed-code: ${RENDER_SMS_FIXED_CODE:123456}
+  code-expire-minutes: ${RENDER_SMS_CODE_EXPIRE_MINUTES:5}
+  resend-interval-seconds: ${RENDER_SMS_RESEND_INTERVAL_SECONDS:60}
+  request-timeout-seconds: ${RENDER_SMS_REQUEST_TIMEOUT_SECONDS:15}
+
+  guoyang:
+    url: ${GUOYANG_SMS_URL:https://gyytz.market.alicloudapi.com/sms/smsSend}
+    app-code: ${GUOYANG_SMS_APPCODE:}
+    sms-sign-id: ${GUOYANG_SMS_SIGN_ID:}
+    template-id: ${GUOYANG_SMS_TEMPLATE_ID:}
+    minute: ${GUOYANG_SMS_MINUTE:5}

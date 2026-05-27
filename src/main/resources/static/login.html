@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>登录 · PhotoScore Pro</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #080d16;
+            --card: rgba(18, 26, 42, .88);
+            --card2: #141f32;
+            --line: rgba(148, 163, 184, .22);
+            --text: #eef4ff;
+            --muted: #9babbd;
+            --gold: #f6b642;
+            --orange: #f97316;
+            --pink: #f472b6;
+            --blue: #38bdf8;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                    radial-gradient(circle at 20% 8%, rgba(246, 182, 66, .22), transparent 28%),
+                    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .16), transparent 30%),
+                    linear-gradient(135deg, #070b12, #111827 55%, #090d14);
+            display: grid;
+            place-items: center;
+            padding: 22px;
+        }
+
+        .page {
+            width: min(1080px, 100%);
+            display: grid;
+            grid-template-columns: 1.08fr 440px;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .hero {
+            padding: 32px;
+        }
+
+        .logo {
+            width: 62px;
+            height: 62px;
+            border-radius: 24px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 28px;
+            background: linear-gradient(135deg, var(--gold), var(--pink), #8b5cf6);
+            box-shadow: 0 20px 50px rgba(246, 182, 66, .25);
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: clamp(34px, 5vw, 60px);
+            letter-spacing: -.06em;
+            line-height: 1.04;
+            margin-bottom: 18px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.9;
+            max-width: 640px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .chip {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, .04);
+            padding: 8px 12px;
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 22px;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, .38);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            letter-spacing: -.03em;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.7;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding: 5px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, .04);
+            border-radius: 18px;
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            border-radius: 13px;
+            padding: 10px 6px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: .18s ease;
+        }
+
+        .tab.active {
+            color: var(--text);
+            background: linear-gradient(135deg, rgba(246, 182, 66, .22), rgba(244, 114, 182, .12));
+        }
+
+        .form {
+            display: none;
+            gap: 12px;
+        }
+
+        .form.active {
+            display: grid;
+        }
+
+        .field {
+            display: grid;
+            gap: 7px;
+        }
+
+        label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        input {
+            width: 100%;
+            height: 44px;
+            border-radius: 15px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, .055);
+            color: var(--text);
+            padding: 0 13px;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(155, 171, 189, .62);
+        }
+
+        input:focus {
+            border-color: rgba(246, 182, 66, .62);
+            box-shadow: 0 0 0 4px rgba(246, 182, 66, .09);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 132px;
+            gap: 9px;
+            align-items: end;
+        }
+
+        .captcha-img {
+            height: 44px;
+            border-radius: 15px;
+            border: 1px solid var(--line);
+            background: #fff;
+            cursor: pointer;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .btn {
+            min-height: 46px;
+            border: 0;
+            border-radius: 16px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: .18s ease;
+            padding: 0 14px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.04);
+        }
+
+        .btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.secondary {
+            background: var(--card2);
+            border: 1px solid var(--line);
+            color: var(--text);
+        }
+
+        .btn.wechat {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+        }
+
+        .sms-row {
+            display: grid;
+            grid-template-columns: 1fr 130px;
+            gap: 9px;
+        }
+
+        .wx-box {
+            border: 1px dashed var(--line);
+            border-radius: 18px;
+            padding: 14px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            text-align: center;
+            background: rgba(255, 255, 255, .035);
+        }
+
+        .wechat-qr-box {
+            display: none;
+            border: 1px solid rgba(34, 197, 94, .28);
+            background: rgba(34, 197, 94, .07);
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .wechat-qr-title {
+            font-weight: 900;
+            color: #d1fae5;
+            margin-bottom: 8px;
+        }
+
+        .wechat-warning {
+            color: #fde68a;
+            background: rgba(245, 158, 11, .10);
+            border: 1px solid rgba(245, 158, 11, .25);
+            border-radius: 14px;
+            padding: 10px;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .wechat-flow {
+            display: grid;
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .wechat-step-card {
+            border: 1px solid rgba(148, 163, 184, .22);
+            background: rgba(255, 255, 255, .045);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .wechat-step-title {
+            font-weight: 900;
+            color: #d1fae5;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .wechat-follow-img {
+            width: 210px;
+            height: 210px;
+            display: block;
+            margin: 0 auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 14px;
+            object-fit: contain;
+        }
+
+        .wechat-step-desc {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            margin-top: 10px;
+        }
+
+        #wechatQrCanvas {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0;
+        }
+
+        #wechatQrCanvas canvas,
+        #wechatQrCanvas img {
+            background: #fff;
+            padding: 10px;
+            border-radius: 14px;
+        }
+
+        .wechat-qr-tip {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+
+        .wechat-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #86efac;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .msg {
+            min-height: 20px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 12px;
+            word-break: break-word;
+        }
+
+        .msg.error {
+            color: #fca5a5;
+        }
+
+        .msg.ok {
+            color: #86efac;
+        }
+
+        .footer-note {
+            margin-top: 14px;
+            color: rgba(155, 171, 189, .7);
+            font-size: 12px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 10px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 14px;
+            }
+
+            .card {
+                padding: 18px;
+                border-radius: 22px;
+            }
+
+            .tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .row,
+            .sms-row {
+                grid-template-columns: 1fr;
+            }
+
+            .captcha-img {
+                height: 46px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="logo">
+            <i class="fa-solid fa-camera-retro"></i>
+        </div>
+
+        <h1>PhotoScore Pro<br/>专业照片评分系统</h1>
+
+
+
+        <div class="chips">
+            <span class="chip">14项评分器</span>
+            <span class="chip">NIMA / OpenCV</span>
+            <span class="chip">豆包视觉复核</span>
+            <span class="chip">DeepSeek专业报告</span>
+            <span class="chip">邮箱验证码注册</span>
+            <span class="chip">微信扫码登录</span>
+            <span class="chip">手机号验证码登录</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>进入系统</h2>
+        <p class="sub">
+            支持用户名 / 邮箱 / 手机号密码登录，邮箱验证码注册，手机号验证码登录，以及微信扫码登录。
+        </p>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="wechat">微信扫码登录</button>
+            <button class="tab" data-tab="login">密码登录</button>
+            <button class="tab" data-tab="email">邮箱注册</button>
+            <button class="tab" data-tab="sms">验证码登录</button>
+        </div>
+
+        <!-- 微信扫码登录 -->
+        <div class="form active" id="form-wechat">
+            <button class="btn wechat" id="wechatLoginBtn" type="button">
+                <i class="fa-brands fa-weixin"></i> 微信扫码登录
+            </button>
+
+            <div class="wechat-qr-box" id="wechatQrBox">
+                <div class="wechat-qr-title">
+                    <i class="fa-brands fa-weixin"></i> 微信扫码登录
+                </div>
+
+                <div class="wechat-warning">
+                    为保障账号安全，微信登录首次使用前需要完成一次公众号绑定。关注后再扫描登录二维码，即可快速进入系统；已关注用户可直接扫码登录。
+                </div>
+
+                <div class="wechat-flow">
+                    <div class="wechat-step-card">
+                        <div class="wechat-step-title">① 首次使用：关注服务公众号</div>
+                        <img class="wechat-follow-img"
+                             src="/images/wechat-test-follow.png"
+                             alt="测试公众号关注二维码"
+                             onerror="this.style.display='none'; document.getElementById('wechatFollowMissing').style.display='block';">
+                        <div id="wechatFollowMissing" class="wechat-step-desc" style="display:none;color:#fca5a5;">
+                            未找到测试公众号二维码图片。请把图片保存为
+                            <b>/static/images/wechat-test-follow.png</b>
+                        </div>
+                        <div class="wechat-step-desc">
+                            请先用微信扫描上方二维码完成关注，用于建立微信账号与 PhotoScore Pro 的安全登录关系。已关注用户可跳过此步骤。
+                        </div>
+                    </div>
+
+                    <div class="wechat-step-card">
+                        <div class="wechat-step-title">② 扫码登录 PhotoScore Pro-专业照片评分系统</div>
+                        <div id="wechatQrCanvas"></div>
+                        <p class="wechat-qr-tip" id="wechatQrText">
+                            登录二维码生成中，请稍候...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 密码登录 -->
+        <div class="form" id="form-login">
+            <div class="field">
+                <label>用户名 / 邮箱 </label>
+                <input id="loginAccount" autocomplete="username" placeholder="请输入用户名或邮箱">
+            </div>
+
+            <div class="field">
+                <label>密码</label>
+                <input id="loginPassword" type="password" autocomplete="current-password" placeholder="请输入密码">
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label>图形验证码</label>
+                    <input id="loginCaptchaCode" placeholder="输入右侧验证码">
+                </div>
+                <img class="captcha-img" id="loginCaptchaImg" title="点击刷新验证码">
+            </div>
+
+            <button class="btn" id="loginBtn" type="button">
+                <i class="fa-solid fa-right-to-bracket"></i> 登录
+            </button>
+        </div>
+
+        <!-- 邮箱注册 -->
+        <div class="form" id="form-email">
+            <div class="field">
+                <label>用户名</label>
+                <input id="emailUsername" placeholder="3-32位，可用中文/字母/数字/下划线">
+            </div>
+
+            <div class="field">
+                <label>密码</label>
+                <input id="emailPassword" type="password" placeholder="6-32位密码">
+            </div>
+
+            <div class="field">
+                <label>邮箱</label>
+                <input id="emailAddress" type="email" placeholder="请输入邮箱地址">
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label>图形验证码</label>
+                    <input id="emailCaptchaCode" placeholder="输入右侧验证码">
+                </div>
+                <img class="captcha-img" id="emailCaptchaImg" title="点击刷新验证码">
+            </div>
+
+            <div class="sms-row">
+                <input id="emailCode" placeholder="邮箱验证码">
+                <button class="btn secondary" id="emailSendBtn" type="button">发送验证码</button>
+            </div>
+
+            <button class="btn" id="emailRegisterBtn" type="button">
+                <i class="fa-solid fa-envelope-circle-check"></i> 邮箱注册并登录
+            </button>
+        </div>
+
+        <!-- 手机号验证码登录 -->
+        <div class="form" id="form-sms">
+            <div class="field">
+                <label>手机号</label>
+                <input id="smsPhone" placeholder="请输入手机号">
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label>图形验证码</label>
+                    <input id="smsCaptchaCode" placeholder="输入右侧验证码">
+                </div>
+                <img class="captcha-img" id="smsCaptchaImg" title="点击刷新验证码">
+            </div>
+
+            <div class="sms-row">
+                <input id="smsCode" placeholder="短信验证码">
+                <button class="btn secondary" id="smsSendBtn" type="button">发送验证码</button>
+            </div>
+
+            <button class="btn" id="smsLoginBtn" type="button">
+                <i class="fa-solid fa-mobile-screen"></i> 手机号登录
+            </button>
+        </div>
+
+        <div class="msg" id="message"></div>
+
+        <div class="footer-note">
+            AI 摄影评审 · 懂你的每一张照片
+        </div>
+    </section>
+</div>
+
+<!-- 优先使用二维码库；加载失败时自动切换到在线二维码图片兜底 -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+    const API = '/api';
+    const TOKEN_KEY = 'PHOTO_SCORE_TOKEN';
+    const USER_KEY = 'PHOTO_SCORE_USER';
+
+    const captcha = {
+        login: {id: null},
+        email: {id: null},
+        sms: {id: null}
+    };
+
+    let wechatPollTimer = null;
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+    function msg(text, ok = false) {
+        const el = $('message');
+        el.textContent = text || '';
+        el.className = 'msg ' + (text ? (ok ? 'ok' : 'error') : '');
+    }
+
+    async function post(url, body) {
+        const resp = await fetch(API + url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body || {}),
+            cache: 'no-store'
+        });
+
+        const text = await resp.text();
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('接口没有返回 JSON，HTTP ' + resp.status + '，响应内容：' + text.slice(0, 200));
+        }
+    }
+
+    async function getJson(url) {
+        const resp = await fetch(API + url, {
+            cache: 'no-store'
+        });
+
+        const text = await resp.text();
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('接口没有返回 JSON，HTTP ' + resp.status + '，响应内容：' + text.slice(0, 200));
+        }
+    }
+
+    async function loadCaptcha(type) {
+        try {
+            const resp = await fetch(API + '/auth/captcha', {
+                cache: 'no-store'
+            });
+
+            const json = await resp.json();
+
+            if (json.code !== 200) {
+                msg(json.message || '验证码加载失败');
+                return;
+            }
+
+            captcha[type].id = json.data.captchaId;
+
+            const imgIdMap = {
+                login: 'loginCaptchaImg',
+                email: 'emailCaptchaImg',
+                sms: 'smsCaptchaImg'
+            };
+
+            const img = $(imgIdMap[type]);
+            if (img) {
+                img.src = json.data.imageBase64;
+            }
+        } catch (e) {
+            console.error(e);
+            msg('验证码加载失败：' + (e.message || '请检查后端服务'));
+        }
+    }
+
+    function saveLogin(data) {
+        if (!data || !data.token) {
+            msg('登录结果异常：未获取到 token');
+            return;
+        }
+
+        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user || {}));
+        location.href = '/index.html';
+    }
+
+    function startCountdown(btn, seconds = 60) {
+        let left = seconds;
+        btn.disabled = true;
+        const old = btn.textContent;
+        btn.textContent = left + 's';
+
+        const timer = setInterval(() => {
+            left--;
+            btn.textContent = left + 's';
+
+            if (left <= 0) {
+                clearInterval(timer);
+                btn.disabled = false;
+                btn.textContent = old;
+            }
+        }, 1000);
+    }
+
+    function stopWechatPolling() {
+        if (wechatPollTimer) {
+            clearInterval(wechatPollTimer);
+            wechatPollTimer = null;
+        }
+    }
+
+    async function renderWechatQrCode(container, authUrl) {
+        container.innerHTML = '';
+
+        if (window.QRCode && typeof QRCode.toCanvas === 'function') {
+            try {
+                const canvas = await QRCode.toCanvas(authUrl, {
+                    width: 220,
+                    margin: 1,
+                    errorCorrectionLevel: 'M'
+                });
+
+                canvas.style.background = '#fff';
+                canvas.style.padding = '10px';
+                canvas.style.borderRadius = '14px';
+
+                container.appendChild(canvas);
+                return;
+            } catch (e) {
+                console.warn('本地二维码库生成失败，切换备用二维码服务：', e);
+            }
+        } else {
+            console.warn('QRCode 库未加载，切换备用二维码服务');
+        }
+
+        await new Promise((resolve) => {
+            const img = document.createElement('img');
+            img.width = 220;
+            img.height = 220;
+            img.alt = '微信登录二维码';
+            img.style.background = '#fff';
+            img.style.padding = '10px';
+            img.style.borderRadius = '14px';
+            img.style.display = 'block';
+            img.style.margin = '0 auto';
+
+            img.onload = () => resolve(true);
+            img.onerror = () => {
+                container.innerHTML = '';
+
+                const a = document.createElement('a');
+                a.href = authUrl;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.className = 'wechat-link';
+                a.textContent = '二维码加载失败，点击打开微信授权链接';
+
+                container.appendChild(a);
+                resolve(false);
+            };
+
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='
+                + encodeURIComponent(authUrl);
+
+            container.appendChild(img);
+        });
+    }
+
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.form').forEach(x => x.classList.remove('active'));
+
+            btn.classList.add('active');
+            $('form-' + btn.dataset.tab).classList.add('active');
+
+            msg('');
+
+            if (btn.dataset.tab !== 'wechat') {
+                stopWechatPolling();
+
+                const qrBox = $('wechatQrBox');
+                if (qrBox) {
+                    qrBox.style.display = 'none';
+                }
+
+                const qr = $('wechatQrCanvas');
+                if (qr) {
+                    qr.innerHTML = '';
+                }
+
+                const qrText = $('wechatQrText');
+                if (qrText) {
+                    qrText.textContent = '登录二维码生成中，请稍候...';
+                }
+            }
+        };
+    });
+
+    $('loginCaptchaImg').onclick = () => loadCaptcha('login');
+    $('emailCaptchaImg').onclick = () => loadCaptcha('email');
+    $('smsCaptchaImg').onclick = () => loadCaptcha('sms');
+
+    $('loginBtn').onclick = async () => {
+        msg('');
+
+        try {
+            const json = await post('/auth/login', {
+                account: $('loginAccount').value.trim(),
+                password: $('loginPassword').value,
+                captchaId: captcha.login.id,
+                captchaCode: $('loginCaptchaCode').value.trim()
+            });
+
+            if (json.code === 200) {
+                saveLogin(json.data);
+            } else {
+                msg(json.message || '登录失败');
+                loadCaptcha('login');
+            }
+        } catch (e) {
+            console.error(e);
+            msg('登录请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    $('emailSendBtn').onclick = async () => {
+        msg('');
+
+        try {
+            const json = await post('/auth/email-code', {
+                email: $('emailAddress').value.trim(),
+                captchaId: captcha.email.id,
+                captchaCode: $('emailCaptchaCode').value.trim()
+            });
+
+            if (json.code === 200) {
+                msg('邮箱验证码已发送，请查看收件箱或垃圾邮件。', true);
+                startCountdown($('emailSendBtn'));
+            } else {
+                msg(json.message || '邮箱验证码发送失败');
+                loadCaptcha('email');
+            }
+        } catch (e) {
+            console.error(e);
+            msg('邮箱验证码请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    $('emailRegisterBtn').onclick = async () => {
+        msg('');
+
+        try {
+            const json = await post('/auth/email-register', {
+                username: $('emailUsername').value.trim(),
+                password: $('emailPassword').value,
+                email: $('emailAddress').value.trim(),
+                emailCode: $('emailCode').value.trim()
+            });
+
+            if (json.code === 200) {
+                saveLogin(json.data);
+            } else {
+                msg(json.message || '邮箱注册失败');
+            }
+        } catch (e) {
+            console.error(e);
+            msg('邮箱注册请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    $('smsSendBtn').onclick = async () => {
+        msg('');
+
+        try {
+            const json = await post('/auth/sms-code', {
+                phone: $('smsPhone').value.trim(),
+                captchaId: captcha.sms.id,
+                captchaCode: $('smsCaptchaCode').value.trim()
+            });
+
+            if (json.code === 200) {
+                msg('短信验证码已发送，请注意查收。', true);
+                startCountdown($('smsSendBtn'));
+            } else {
+                msg(json.message || '验证码发送失败');
+                loadCaptcha('sms');
+            }
+        } catch (e) {
+            console.error(e);
+            msg('验证码请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    $('smsLoginBtn').onclick = async () => {
+        msg('');
+
+        try {
+            const json = await post('/auth/sms-login', {
+                phone: $('smsPhone').value.trim(),
+                smsCode: $('smsCode').value.trim()
+            });
+
+            if (json.code === 200) {
+                saveLogin(json.data);
+            } else {
+                msg(json.message || '登录失败');
+            }
+        } catch (e) {
+            console.error(e);
+            msg('手机号登录请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    $('wechatLoginBtn').onclick = async () => {
+        msg('');
+        stopWechatPolling();
+
+        try {
+            const json = await getJson('/auth/wechat/mp/qr-login');
+
+            if (json.code !== 200 || !json.data || !json.data.authUrl) {
+                msg(json.message || '微信登录暂不可用，请检查公众号配置');
+                return;
+            }
+
+            const box = $('wechatQrBox');
+            const qr = $('wechatQrCanvas');
+
+            box.style.display = 'block';
+            qr.innerHTML = '';
+
+            await renderWechatQrCode(qr, json.data.authUrl);
+
+            $('wechatQrText').textContent =
+                '请使用微信扫描此二维码完成登录。已关注用户扫描此二维码会自动进入系统；二维码有效期约 '
+                + Math.floor((json.data.expireSeconds || 300) / 60)
+                + ' 分钟。';
+
+            startWechatPolling(json.data.scene);
+
+        } catch (e) {
+            console.error('微信登录失败：', e);
+            msg('微信登录请求失败：' + (e.message || '未知错误'));
+        }
+    };
+
+    function startWechatPolling(scene) {
+        stopWechatPolling();
+
+        if (!scene) {
+            msg('微信登录 scene 为空，请刷新二维码');
+            return;
+        }
+
+        wechatPollTimer = setInterval(async () => {
+            try {
+                const json = await getJson('/auth/wechat/mp/poll?scene=' + encodeURIComponent(scene));
+
+                if (json.code !== 200 || !json.data) {
+                    return;
+                }
+
+                if (json.data.status === 'PENDING') {
+                    return;
+                }
+
+                stopWechatPolling();
+
+                if (json.data.status === 'CONFIRMED' && json.data.auth) {
+                    msg('微信登录成功，正在进入系统...', true);
+                    saveLogin(json.data.auth);
+                    return;
+                }
+
+                msg(json.data.message || '微信登录失败，请重新扫码');
+
+            } catch (e) {
+                stopWechatPolling();
+                console.error(e);
+                msg('微信登录轮询失败：' + (e.message || '请刷新后重试'));
+            }
+        }, 1800);
+    }
+
+    (function redirectIfLoggedIn() {
+        const token = localStorage.getItem(TOKEN_KEY);
+
+        if (token) {
+            location.href = '/index.html';
+        }
+    })();
+
+    loadCaptcha('login');
+    loadCaptcha('email');
+    loadCaptcha('sms');
+</script>
+</body>
+</html>

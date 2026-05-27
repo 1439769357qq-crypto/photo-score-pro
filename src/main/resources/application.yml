@@ -1,0 +1,108 @@
+﻿server:
+  port: ${PORT:8080}
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 1439769357qq@gmail.com
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: false
+          starttls:
+            enable: true
+
+  main:
+    allow-circular-references: true
+
+  application:
+    name: photo-score-pro
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/photo_score_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 500MB
+      file-size-threshold: 0
+      resolve-lazily: false
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production}
+    expire-hours: 48
+
+  email:
+    code-expire-minutes: 5
+    resend-interval-seconds: 60
+
+  wechat:
+    # 你现在用的是微信公众平台，不是开放平台网站应用，先关掉
+    enabled: true
+    platform: mp
+    app-id: wx201993d3482fcbbd
+    app-secret: ${WECHAT_APP_SECRET:}
+    redirect-uri: https://regardless-finest-again-achieve.trycloudflare.com/api/auth/wechat/mp/callback
+    scope: snsapi_userinfo
+    frontend-login-url: https://regardless-finest-again-achieve.trycloudflare.com/login.html
+    scene-expire-minutes: 5
+
+sms:
+  aliyun:
+    enabled: true
+    # 你没有短信服务签名和模板，先用 fixed
+    mode: fixed
+    fixed-code: 123456
+    code-expire-minutes: 5
+    resend-interval-seconds: 60
+
+doubao:
+  vision:
+    enabled: ${DOUBAO_VISION_ENABLED:false}
+    api-key: ${DOUBAO_API_KEY:}
+    base-url: ${DOUBAO_BASE_URL:https://ark.cn-beijing.volces.com/api/v3/chat/completions}
+    model: ${DOUBAO_MODEL:}
+    timeout-seconds: ${DOUBAO_TIMEOUT_SECONDS:60}
+    temperature: ${DOUBAO_TEMPERATURE:0.2}
+    max-image-size: ${DOUBAO_VISION_MAX_IMAGE_SIZE:768}
+    max-tokens: ${DOUBAO_MAX_TOKENS:900}
+
+deepseek:
+  enabled: ${DEEPSEEK_ENABLED:false}
+  api-key: ${DEEPSEEK_API_KEY:}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/chat/completions}
+  model: ${DEEPSEEK_MODEL:deepseek-v4-pro}
+  timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:60}
+  max-tokens: ${DEEPSEEK_MAX_TOKENS:2200}
+  temperature: ${DEEPSEEK_TEMPERATURE:0.2}
+
+photoscore:
+  upload:
+    path: D:/photo-uploads
+  pass-line: 60
+  nima:
+    enabled: true
+    model-path: src/main/resources/models/
+  disruptor:
+    ring-buffer-size: 1024
+    worker-threads: 4
