@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.photoscore.config.WechatLoginProperties;
 import com.example.photoscore.mapper.UserAccountMapper;
 import com.example.photoscore.pojo.*;
+import com.example.photoscore.security.AdminAccessService;
 import com.example.photoscore.security.JwtUtil;
 import com.example.photoscore.service.*;
 import com.example.photoscore.util.CaptchaUtil;
@@ -38,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final WechatStateStore wechatStateStore;
     private final WechatLoginProperties wechatProperties;
     private final JwtUtil jwtUtil;
+    private final AdminAccessService adminAccessService;
     private final ObjectMapper objectMapper;
     private final WechatMpLoginSceneStore wechatMpLoginSceneStore;
 
@@ -524,10 +526,22 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthResponse buildAuthResponse(UserAccount user) {
+        markLastLogin(user);
         return AuthResponse.builder()
                 .token(jwtUtil.generateToken(user))
                 .user(toUserInfo(user))
                 .build();
+    }
+
+    private void markLastLogin(UserAccount user) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastLoginTime(now);
+        user.setUpdatedTime(now);
+        userMapper.updateById(user);
     }
 
     private UserInfoResponse toUserInfo(UserAccount user) {
@@ -537,6 +551,7 @@ public class AuthServiceImpl implements AuthService {
                 .phone(maskPhone(user.getPhone()))
                 .email(maskEmail(user.getEmail()))
                 .avatarUrl(user.getAvatarUrl())
+                .admin(adminAccessService.isAdmin(user.getUsername()))
                 .build();
     }
 

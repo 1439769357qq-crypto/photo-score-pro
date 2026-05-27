@@ -15,4 +15,5 @@ public class UserInfoResponse {
     private String phone;
     private String email;
     private String avatarUrl;
+    private Boolean admin;
 }

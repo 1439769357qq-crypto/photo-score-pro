@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.photoscore.config.ProgressManager;
 import com.example.photoscore.mapper.PhotoScoreRecordMapper;
+import com.example.photoscore.mapper.UserAccountMapper;
 import com.example.photoscore.pojo.*;
+import com.example.photoscore.security.AdminAccessService;
+import com.example.photoscore.security.UserContext;
 import com.example.photoscore.service.PhotoScoreService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,6 +41,10 @@ public class PhotoScoreController {
 
 
     private final PhotoScoreRecordMapper recordMapper;
+
+    private final UserAccountMapper userAccountMapper;
+
+    private final AdminAccessService adminAccessService;
 
 
     private final ProgressManager progressManager;
@@ -95,6 +102,19 @@ public class PhotoScoreController {
         }
         return ip;
     }
+
+    private Long currentUserId() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new IllegalStateException("请先登录");
+        }
+        return userId;
+    }
+
+    private boolean currentUserIsAdmin() {
+        return adminAccessService.isCurrentUserAdmin();
+    }
+
     @GetMapping("/history")
     public Result<Map<String, Object>> getHistory(
             @RequestParam(defaultValue = "1") int page,
@@ -102,10 +122,19 @@ public class PhotoScoreController {
             @RequestParam(required = false) String startDate,  // 格式 yyyy-MM-dd
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false) Integer minScore,
-            @RequestParam(required = false) Integer maxScore) {
+            @RequestParam(required = false) Integer maxScore,
+            @RequestParam(required = false) Long userId) {
 
         Page<PhotoScoreRecord> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<PhotoScoreRecord> wrapper = new LambdaQueryWrapper<>();
+
+        if (currentUserIsAdmin()) {
+            if (userId != null) {
+                wrapper.eq(PhotoScoreRecord::getUserId, userId);
+            }
+        } else {
+            wrapper.eq(PhotoScoreRecord::getUserId, currentUserId());
+        }
 
         // 时间范围筛选
         if (startDate != null && !startDate.isEmpty()) {
@@ -130,6 +159,38 @@ public class PhotoScoreController {
         result.put("pages", resultPage.getPages());
         result.put("current", resultPage.getCurrent());
         result.put("records", resultPage.getRecords());
+
+        return Result.success(result);
+    }
+
+    @GetMapping("/admin/users")
+    public Result<Map<String, Object>> adminUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String keyword) {
+        adminAccessService.requireCurrentUserAdmin();
+
+        int safePage = Math.max(1, page);
+        int safeSize = Math.max(1, Math.min(size, 100));
+        long offset = (long) (safePage - 1) * safeSize;
+
+        String safeKeyword = keyword == null || keyword.isBlank() ? null : keyword.trim();
+        long total = userAccountMapper.countAdminUserUsage(safeKeyword);
+        List<Map<String, Object>> records = userAccountMapper.selectAdminUserUsage(safeKeyword, safeSize, offset);
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalUsers", userAccountMapper.countAllUsers());
+        summary.put("loggedInUsers", userAccountMapper.countLoggedInUsers());
+        summary.put("scoredUsers", userAccountMapper.countScoredUsers());
+        summary.put("scoreRecordCount", userAccountMapper.countAllScoreRecords());
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("total", total);
+        result.put("pages", (long) Math.ceil(total / (double) safeSize));
+        result.put("current", safePage);
+        result.put("size", safeSize);
+        result.put("records", records);
+        result.put("summary", summary);
 
         return Result.success(result);
     }
@@ -168,9 +229,12 @@ public class PhotoScoreController {
             return Result.error("未读取到有效图片");
         }
 
-        progressManager.initTask(taskId, cachedFiles.size());
+        Long userId = currentUserId();
+        String username = UserContext.getUsername();
+        progressManager.initTask(taskId, cachedFiles.size(), userId);
 
         CompletableFuture.runAsync(() -> {
+            UserContext.set(userId, username);
             try {
                 BatchScoreResponse response = photoScoreService.scoreBatchPhotosWithProgress(
                         cachedFiles,
@@ -185,6 +249,8 @@ public class PhotoScoreController {
             } catch (Exception e) {
                 log.error("异步批量评分失败", e);
                 progressManager.completeTask(taskId, Result.error("评分失败: " + e.getMessage()));
+            } finally {
+                UserContext.clear();
             }
         });
 
@@ -195,6 +261,10 @@ public class PhotoScoreController {
         ProgressManager.ProgressInfo info = progressManager.getProgress(taskId);
         if (info == null) {
             return Result.error("任务不存在或已过期");
+        }
+        Long ownerUserId = info.getOwnerUserId();
+        if (ownerUserId != null && !ownerUserId.equals(currentUserId()) && !currentUserIsAdmin()) {
+            return Result.error("任务不存在或无权限访问");
         }
         return Result.success(info);
     }
@@ -239,7 +309,12 @@ public class PhotoScoreController {
             return;
         }
 
-        List<PhotoScoreRecord> records = recordMapper.selectBatchIds(idList);
+        LambdaQueryWrapper<PhotoScoreRecord> query = new LambdaQueryWrapper<PhotoScoreRecord>()
+                .in(PhotoScoreRecord::getId, idList);
+        if (!currentUserIsAdmin()) {
+            query.eq(PhotoScoreRecord::getUserId, currentUserId());
+        }
+        List<PhotoScoreRecord> records = recordMapper.selectList(query);
         if (records.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("{\"code\":404,\"message\":\"未找到任何照片\"}");
@@ -295,8 +370,9 @@ public class PhotoScoreController {
         }
 
         List<PhotoScoreRecord> records = new ArrayList<>();
+        Long userId = currentUserId();
         for (String hash : hashes) {
-            PhotoScoreRecord record = recordMapper.selectByFileHash(hash);
+            PhotoScoreRecord record = recordMapper.selectByUserIdAndFileHash(userId, hash);
             if (record != null) {
                 records.add(record);
             }

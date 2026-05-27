@@ -9767,7 +9767,10 @@ bind = function() {
 
         const username = readCurrentUserNameForRole();
         const admins = configuredAdminUsers();
-        const isAdmin = admins.includes(username);
+        const localUser = (() => {
+            try { return JSON.parse(localStorage.getItem(USER_KEY) || '{}'); } catch (e) { return {}; }
+        })();
+        const isAdmin = localUser.admin === true || admins.includes(username);
 
         role.classList.toggle('admin', isAdmin);
         role.innerHTML = isAdmin
@@ -12702,6 +12705,181 @@ bind = function() {
     window.createPublicCustomerShare = function () {
         createShare($('deliveryClientHtmlBtn') || $('collectionHtmlBtn'));
     };
+})();
+</script>
+
+<script>
+(function adminUsagePanelPatch() {
+    const TOKEN_KEY = 'PHOTO_SCORE_TOKEN';
+    const USER_KEY = 'PHOTO_SCORE_USER';
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function currentUser() {
+        try {
+            return JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function configuredAdminUsers() {
+        const raw = String(
+            window.PHOTOSCORE_ADMIN_USERS ||
+            localStorage.getItem('PHOTOSCORE_ADMIN_USERS') ||
+            'admin,tianjiao'
+        );
+        return raw.split(',').map(x => x.trim()).filter(Boolean);
+    }
+
+    function isAdminUser() {
+        const user = currentUser();
+        const name = String(user.username || user.email || user.phone || '').trim();
+        return user.admin === true || configuredAdminUsers().some(x => x.toLowerCase() === name.toLowerCase());
+    }
+
+    async function adminFetch(path) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        const response = await fetch(path, {
+            headers: token ? { Authorization: 'Bearer ' + token } : {}
+        });
+        const json = await response.json();
+        if (!response.ok || Number(json.code) !== 200) {
+            throw new Error(json.message || '管理员数据读取失败');
+        }
+        return json.data || {};
+    }
+
+    function stat(label, value) {
+        return '<div class="work-stat"><small>' + escapeHTML(label) + '</small><b>' + escapeHTML(value ?? 0) + '</b></div>';
+    }
+
+    function formatTime(value) {
+        if (!value) return '-';
+        try {
+            return new Date(value).toLocaleString();
+        } catch (e) {
+            return String(value);
+        }
+    }
+
+    function ensurePanel() {
+        const usageGrid = document.querySelector('#usageBox .usage-grid');
+        if (!usageGrid) return null;
+
+        let panel = $('adminUsagePanel');
+        if (!panel) {
+            usageGrid.insertAdjacentHTML('beforeend', `
+                <div class="work-card usage-full" id="adminUsagePanel">
+                    <div class="work-head">
+                        <div>
+                            <h2><i class="fa-solid fa-users-gear"></i> 管理员 · 用户使用情况</h2>
+                            <p>用户、登录和照片评分记录按账号汇总。</p>
+                        </div>
+                        <div class="work-actions">
+                            <input id="adminUsageKeyword" placeholder="搜索用户 / 手机 / 邮箱">
+                            <button class="btn secondary" id="adminUsageRefreshBtn" type="button"><i class="fa-solid fa-rotate"></i> 刷新</button>
+                        </div>
+                    </div>
+                    <div id="adminUsageSummary"></div>
+                    <div id="adminUsageTable" class="work-panel">正在读取管理员数据……</div>
+                </div>
+            `);
+            panel = $('adminUsagePanel');
+            $('adminUsageRefreshBtn')?.addEventListener('click', renderAdminUsagePanel);
+            $('adminUsageKeyword')?.addEventListener('keydown', event => {
+                if (event.key === 'Enter') renderAdminUsagePanel();
+            });
+        }
+
+        return panel;
+    }
+
+    async function renderAdminUsagePanel() {
+        if (!isAdminUser()) return;
+
+        const panel = ensurePanel();
+        if (!panel) return;
+
+        const table = $('adminUsageTable');
+        const keyword = $('adminUsageKeyword')?.value?.trim() || '';
+        if (table) table.innerHTML = '正在读取管理员数据……';
+
+        try {
+            const query = keyword ? '?keyword=' + encodeURIComponent(keyword) : '';
+            const data = await adminFetch('/api/photo-score/admin/users' + query);
+            const summary = data.summary || {};
+            const records = Array.isArray(data.records) ? data.records : [];
+
+            if ($('adminUsageSummary')) {
+                $('adminUsageSummary').innerHTML = `
+                    <div class="work-stat-grid">
+                        ${stat('注册用户', summary.totalUsers)}
+                        ${stat('登录过的用户', summary.loggedInUsers)}
+                        ${stat('评分用户', summary.scoredUsers)}
+                        ${stat('评分记录', summary.scoreRecordCount)}
+                    </div>
+                `;
+            }
+
+            if (!records.length) {
+                if (table) table.innerHTML = '暂无用户使用数据。';
+                return;
+            }
+
+            if (table) {
+                table.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>联系方式</th>
+                                <th>评分次数</th>
+                                <th>平均分</th>
+                                <th>最近登录</th>
+                                <th>最近评分</th>
+                                <th>最近 IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${records.map(row => `
+                                <tr>
+                                    <td>${escapeHTML(row.username || ('用户' + row.userId))}</td>
+                                    <td>${escapeHTML(row.phone || row.email || '-')}</td>
+                                    <td>${escapeHTML(row.scoreCount || 0)}</td>
+                                    <td>${escapeHTML(row.avgScore ?? '-')}</td>
+                                    <td>${escapeHTML(formatTime(row.lastLoginTime))}</td>
+                                    <td>${escapeHTML(formatTime(row.lastScoreTime))}</td>
+                                    <td>${escapeHTML(row.lastClientIp || '-')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        } catch (error) {
+            if (table) table.innerHTML = '管理员数据读取失败：' + escapeHTML(error.message || error);
+        }
+    }
+
+    document.addEventListener('click', event => {
+        if (event.target && event.target.closest && event.target.closest('[data-mode="usage"]')) {
+            setTimeout(renderAdminUsagePanel, 250);
+        }
+    });
+
+    window.addEventListener('load', () => setTimeout(renderAdminUsagePanel, 800));
 })();
 </script>
 

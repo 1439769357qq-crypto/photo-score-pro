@@ -8,6 +8,7 @@ import com.example.photoscore.service.DeepSeekAiService;
 import com.example.photoscore.service.DoubaoVisionAiService;
 import com.example.photoscore.service.PhotoScoreService;
 import com.example.photoscore.service.SceneClassifier;
+import com.example.photoscore.security.UserContext;
 import com.example.photoscore.util.ImageHashUtil;
 import com.example.photoscore.util.OpenCVUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,6 +86,29 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
     @Value("${photoscore.pass-line:60}")
     private BigDecimal passLine;
 
+    private CurrentScoringUser requireCurrentUser() {
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            throw new IllegalStateException("请先登录后再进行照片评分");
+        }
+
+        String username = UserContext.getUsername();
+        if (username == null || username.isBlank()) {
+            username = "user-" + userId;
+        }
+
+        return new CurrentScoringUser(userId, username);
+    }
+
+    private <T> T runAsUser(CurrentScoringUser user, CheckedSupplier<T> supplier) throws Exception {
+        UserContext.set(user.id(), user.username());
+        try {
+            return supplier.get();
+        } finally {
+            UserContext.clear();
+        }
+    }
+
     @Override
     public PhotoScoreResponse scoreSinglePhoto(MultipartFile file, String clientIp, String userAgent) {
         log.info("单张照片评分请求: fileName={}", file.getOriginalFilename());
@@ -116,7 +140,8 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
             return Collections.emptyMap();
         }
 
-        List<PhotoScoreRecord> existing = recordMapper.selectByFileHashes(fileHashes);
+        CurrentScoringUser currentUser = requireCurrentUser();
+        List<PhotoScoreRecord> existing = recordMapper.selectByUserIdAndFileHashes(currentUser.id(), fileHashes);
         if (existing == null || existing.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -135,6 +160,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
     public BatchScoreResponse scoreBatchPhotos(List<MultipartFile> files,
                                                String clientIp, String userAgent) {
         long startTime = System.currentTimeMillis();
+        CurrentScoringUser currentUser = requireCurrentUser();
         log.info("批量照片评分请求(并行模式): fileCount={}", files.size());
 
         // ===== 第1步：计算哈希，内存去重（串行，因为IO密集且很快）=====
@@ -178,7 +204,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
             MultipartFile file = entry.getValue();
             CompletableFuture<PhotoScoreResponse> future = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return scoreSinglePhotoWithHash(file, clientIp, userAgent, fileHash);
+                    return runAsUser(currentUser, () -> scoreSinglePhotoWithHash(file, clientIp, userAgent, fileHash));
                 } catch (Exception e) {
                     log.error("并行评分失败: fileName={}", file.getOriginalFilename(), e);
                     // 返回一个失败的默认响应，避免阻塞其他任务
@@ -234,6 +260,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
                                                            String mode,
                                                            Integer topN) {
         long startTime = System.currentTimeMillis();
+        CurrentScoringUser currentUser = requireCurrentUser();
         log.info("批量照片评分请求(带进度): fileCount={}, taskId={}", files.size(), taskId);
 
         Map<String, CachedMultipartFile> hashToFileMap = new LinkedHashMap<>();
@@ -241,7 +268,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
         List<PhotoScoreResponse> responses = new ArrayList<>();
 
         if (progressManager != null && taskId != null) {
-            progressManager.initTask(taskId, files.size());
+            progressManager.initTask(taskId, files.size(), currentUser.id());
         }
 
         int processed = 0;
@@ -1004,7 +1031,8 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
                                                     String clientIp,
                                                     String userAgent) throws IOException {
         String fileHash = ImageHashUtil.calculateHash(file);
-        PhotoScoreRecord existingRecord = recordMapper.selectByFileHash(fileHash);
+        CurrentScoringUser currentUser = requireCurrentUser();
+        PhotoScoreRecord existingRecord = recordMapper.selectByUserIdAndFileHash(currentUser.id(), fileHash);
 
         if (existingRecord != null) {
             String msg = String.format(
@@ -1016,7 +1044,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
             return buildResponseFromRecord(existingRecord, file.getOriginalFilename(), msg);
         }
 
-        return scoreSinglePhoto(file, clientIp, userAgent);
+        return scoreSinglePhotoWithHash(file, clientIp, userAgent, fileHash);
     }
 
     // 辅助方法：将上传文件缓存到内存
@@ -1093,6 +1121,7 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
                                                    String userAgent,
                                                    String fileHash) throws IOException {
         long startTime = System.currentTimeMillis();
+        CurrentScoringUser currentUser = requireCurrentUser();
         String safeFileHash = fileHash == null || fileHash.isBlank()
                 ? ImageHashUtil.calculateHash(file)
                 : fileHash;
@@ -1283,6 +1312,8 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
 
         // 保存记录到数据库，包含 imagePath
         PhotoScoreRecord record = PhotoScoreRecord.builder()
+                .userId(currentUser.id())
+                .username(currentUser.username())
                 .fileName(originalFilename)
                 .fileHash(safeFileHash)
                 .fileSize(file.getSize())
@@ -2295,5 +2326,12 @@ public class PhotoScoreServiceImpl implements PhotoScoreService {
         return String.join("、", items.subList(0, items.size() - 1))
                 + "和"
                 + items.get(items.size() - 1);
+    }
+
+    private record CurrentScoringUser(Long id, String username) {}
+
+    @FunctionalInterface
+    private interface CheckedSupplier<T> {
+        T get() throws Exception;
     }
 }

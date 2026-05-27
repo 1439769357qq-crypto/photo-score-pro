@@ -20,6 +20,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
+    private final AdminAccessService adminAccessService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -49,7 +50,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(
                             payload.getUsername(),
                             null,
-                            AuthorityUtils.createAuthorityList("ROLE_USER")
+                            adminAccessService.isAdmin(payload.getUsername())
+                                    ? AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")
+                                    : AuthorityUtils.createAuthorityList("ROLE_USER")
                     );
 
             authentication.setDetails(payload);

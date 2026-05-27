@@ -1,10 +1,10 @@
 
 package com.example.photoscore.service;
 
+import com.example.photoscore.security.AdminAccessService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -30,7 +30,7 @@ public class EnterpriseWorkspaceService {
 
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
-    private final Environment environment;
+    private final AdminAccessService adminAccessService;
 
     private record CurrentUser(Long id, String username, boolean admin) {}
 
@@ -57,11 +57,7 @@ public class EnterpriseWorkspaceService {
         }
 
         String username = String.valueOf(auth.getName() == null ? "user" : auth.getName());
-        String admins = environment.getProperty("PHOTOSCORE_ADMIN_USERS", "admin");
-        boolean admin = Arrays.stream(admins.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .anyMatch(s -> s.equalsIgnoreCase(username));
+        boolean admin = adminAccessService.isAdmin(username);
 
         return new CurrentUser(userId, username, admin);
     }

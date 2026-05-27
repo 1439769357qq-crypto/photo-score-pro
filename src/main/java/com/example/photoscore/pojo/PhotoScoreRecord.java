@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 public class PhotoScoreRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
+    @TableField("user_id")
+    private Long userId;
+    private String username;
     private String fileName;
     private String fileHash;
     private Long fileSize;

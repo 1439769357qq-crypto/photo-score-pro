@@ -9,7 +9,11 @@ public class ProgressManager {
     private final Map<String, ProgressInfo> taskProgress = new ConcurrentHashMap<>();
 
     public void initTask(String taskId, int total) {
-        taskProgress.put(taskId, new ProgressInfo(total, 0, false, null));
+        initTask(taskId, total, null);
+    }
+
+    public void initTask(String taskId, int total, Long ownerUserId) {
+        taskProgress.put(taskId, new ProgressInfo(total, 0, false, null, ownerUserId));
     }
 
     public void updateProgress(String taskId, int processed) {
@@ -40,12 +44,18 @@ public class ProgressManager {
         private int processed;
         private boolean completed;
         private Object result;
+        private Long ownerUserId;
 
         public ProgressInfo(int total, int processed, boolean completed, Object result) {
+            this(total, processed, completed, result, null);
+        }
+
+        public ProgressInfo(int total, int processed, boolean completed, Object result, Long ownerUserId) {
             this.total = total;
             this.processed = processed;
             this.completed = completed;
             this.result = result;
+            this.ownerUserId = ownerUserId;
         }
         // getters and setters
         public int getTotal() { return total; }
@@ -56,5 +66,7 @@ public class ProgressManager {
         public void setCompleted(boolean completed) { this.completed = completed; }
         public Object getResult() { return result; }
         public void setResult(Object result) { this.result = result; }
+        public Long getOwnerUserId() { return ownerUserId; }
+        public void setOwnerUserId(Long ownerUserId) { this.ownerUserId = ownerUserId; }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.photoscore.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,6 @@ public class UserAccount {
     private LocalDateTime updatedTime;
     private String email;
     private Integer emailVerified;
+    @TableField("last_login_time")
+    private LocalDateTime lastLoginTime;
 }
